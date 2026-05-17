@@ -1,3 +1,3 @@
 <p align="center">
-  <img src="tinymlx.png">
+  <img width="80%" src="tinymlx.png">
 </p>
