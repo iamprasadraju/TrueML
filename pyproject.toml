@@ -5,24 +5,23 @@ description = "TinyML — minimal, high-performance Machine Learning library."
 
 readme = "README.md"
 requires-python = ">=3.13"
-authors = [{ name = "Prasad Raju G" }]
 
-dependencies = [
-	"numpy"
+authors = [
+    { name = "Prasad Raju G" }
 ]
 
+dependencies = [
+    "numpy"
+]
 
 [build-system]
 requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-package-dir = { "" = "src" }
-
-[tool.setuptools.packages.find]
-where = ["src"]
-
 [project.optional-dependencies]
 dev = [
-	"matplotlib>=3.10.8"
+    "matplotlib>=3.10.8"
 ]
+
+[tool.setuptools.packages.find]
+where = ["."]
