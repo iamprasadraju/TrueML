@@ -1,24 +1,18 @@
 import numpy as np
 
-
 class LinearRegression:
-    def __init__(self):
-        self.X = None
-        self.y = None
+    def __init__(self, n_features, lr = 0.01):
+        # lr - learning rate
+        self.lr = lr 
+        # number of features X_train[1] (columns)
+        self.weights = np.random.rand(n_features) * 0.01
+        self.bias = 0.0
 
-        self.weights = None
-        self.bias = 0
-
-    def fit(self, X, y):
-        self.X =  X
-        self.y = y
+    def forward(self, X_train):
+        # y_pred 
+        return X_train @ self.weights + self.bias
         
-        if self.X.shape[0] == self.y.shape[0]:
-            self.weights = np.random.rand(self.X.shape[1])
-            self.bias = 0
-        else:
-            raise ValueError
-
-    def train(self):
-        y_pred = (self.X @ self.weights) + self.bias
-        return y_pred
+    def backward(self, dw, db):
+            # Manually apply the update rule using the stored learning rate
+            self.weights -= self.lr * dw
+            self.bias -= self.lr * db

@@ -1,3 +1,21 @@
+import numpy as np
 # Absolute Error: |x - y| 
-def absolute_error(true_value, predict_value):
-    return abs(true_value -  predict_value)
+
+class AbsoluteError:
+    def __call__(self, y_train, y_pred):
+        # This returns the individual errors
+        return np.abs(y_train -  y_pred)
+
+    def loss(self):
+        # This returns the scalar objective for training
+        return np.mean(self(y_true, y_pred))
+
+    def grad(self, X, error):
+            # derivative of |error| is -sign(error)
+            grad_pred = -np.sign(error)
+            
+            n = X.shape[0]
+            dw = (X.T @ grad_pred) / n
+            db = np.mean(grad_pred)
+            return dw, db
+        
