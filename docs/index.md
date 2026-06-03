@@ -1,4 +1,4 @@
-# TinyMLx Laboratory Manual
+# tinyMLx Documentation
 
 **Version 0.1.0** — A no-abstraction mathematical sandbox for machine learning research.
 
