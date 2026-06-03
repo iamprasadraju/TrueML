@@ -1,3 +1,3 @@
-from .signed_error import signed_error
+from .signed_error import SignedError
 from .absolute_error import AbsoluteError
-from .squared_error import squared_error
+from .squared_error import SquaredError
