@@ -1,0 +1,40 @@
+site_name: TinyMLx Laboratory Manual
+site_url: "https://iamprasadraju.github.io/tinyMLx/"
+repo_url: https://github.com/iamprasadraju/tinymlx.git
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+
+markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - admonition
+
+extra_javascript:
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - Home: index.md
+  - Philosophy: philosophy.md
+  - API Reference:
+    - LinearModels:
+      - LinearRegression: api/linear_regression.md
+      - LogisticRegression: api/logistic_regression.md
+    - Loss Functions:
+      - AbsoluteError: api/absolute_error.md
+      - SquaredError: api/squared_error.md
+  - Theory:
+    - Calculus Mapping: theory/calculus_mapping.md
+  - Recipes:
+    - Manual Gradient Descent: recipes/manual_gradient_descent.md
