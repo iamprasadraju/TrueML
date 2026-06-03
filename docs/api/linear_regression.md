@@ -30,7 +30,7 @@ LinearRegression(n_features: int, lr: float = 0.01)
 
 | Variable | Shape | Initial Value |
 |----------|-------|---------------|
-| `weights` | `(n_features,)` | $\mathcal{N}(0, 0.01^2)$ |
+| `weights` | `(n_features,)` | $\mathcal{N}(0, 0.01)$ |
 | `bias` | `scalar` | `0.0` |
 
 ---

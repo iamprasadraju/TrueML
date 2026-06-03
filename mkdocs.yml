@@ -1,6 +1,6 @@
 site_name: tinyMLx Docs
 site_url: "https://iamprasadraju.github.io/tinyMLx/"
-repo_url: https://github.com/iamprasadraju/tinymlx.git
+repo_url: "https://github.com/iamprasadraju/tinymlx"
 edit_uri: edit/main/docs/
 
 theme:
