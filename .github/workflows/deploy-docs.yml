@@ -5,6 +5,10 @@ on:
       - master
       - main
       - issue1/docs
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '.github/workflows/deploy-docs.yml'
 permissions:
   contents: write
 jobs:
