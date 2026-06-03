@@ -6,10 +6,6 @@ class AbsoluteError:
         # This returns the individual errors
         return np.abs(y_train -  y_pred)
 
-    def loss(self):
-        # This returns the scalar objective for training
-        return np.mean(self(y_true, y_pred))
-
     def grad(self, X, error):
             # derivative of |error| is -sign(error)
             grad_pred = -np.sign(error)
