@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: light)" srcset="tinymlx-dark.svg">
-  <img alt="tiny corp logo" src="tinymlx-light.svg" width="50%" height="50%">
+  <source media="(prefers-color-scheme: light)" srcset="docs/tinymlx-dark.svg">
+  <img alt="tiny corp logo" src="docs/tinymlx-light.svg" width="50%" height="50%">
 </picture>
 </div>
 
