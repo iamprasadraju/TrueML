@@ -4,8 +4,8 @@ class LinearRegression:
     def __init__(self, n_features, lr = 0.01):
         # lr - learning rate
         self.lr = lr 
-        # number of features X_train.shape[1] (columns)
-        self.weights = np.random.rand(n_features) * 0.01
+        # number of features X_train[1] (columns)
+        self.weights = np.random.randn(n_features) * 0.01
         self.bias = 0.0
 
     def forward(self, X_train):
