@@ -7,11 +7,9 @@ class AbsoluteError:
         return np.abs(y_train -  y_pred)
 
     def grad(self, X, error):
-            # derivative of |error| is -sign(error)
-            grad_pred = -np.sign(error)
-            
-            n = X.shape[0]
-            dw = (X.T @ grad_pred) / n
-            db = np.mean(grad_pred)
-            return dw, db
+        n = X.shape[0]
+        grad_pred = -np.sign(error)
+        dw = (X.T @ grad_pred) / n
+        db = np.mean(grad_pred)
+        return dw, db
         

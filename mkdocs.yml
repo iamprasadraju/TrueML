@@ -1,6 +1,6 @@
 site_name: tinyMLx Docs
 site_url: "https://iamprasadraju.github.io/tinyMLx/"
-repo_url: "https://github.com/iamprasadraju/tinymlx"
+repo_url: https://github.com/iamprasadraju/tinymlx
 edit_uri: edit/main/docs/
 
 theme:
@@ -39,12 +39,12 @@ nav:
   - Home: index.md
   - Philosophy: philosophy.md
   - API Reference:
-    - LinearModels:
-      - LinearRegression: api/linear_regression.md
-      - LogisticRegression: api/logistic_regression.md
+    - Models:
+      - LinearRegression: api/models/linear_regression.md
+      - LogisticRegression: api/models/logistic_regression.md
     - Loss Functions:
-      - AbsoluteError: api/absolute_error.md
-      - SquaredError: api/squared_error.md
+      - AbsoluteError: api/lossfunc/absolute_error.md
+      - SquaredError: api/lossfunc/squared_error.md
   - Theory:
     - Calculus Mapping: theory/calculus_mapping.md
   - Recipes:

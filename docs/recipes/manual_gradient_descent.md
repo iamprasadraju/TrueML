@@ -43,15 +43,19 @@ for epoch in range(1, epochs + 1):
     #   ŷ = X w + b
     y_pred = model.forward(X)
 
+    # ── Signed error ─────────────────────────────────────────
+    #   e = y – ŷ   (signed residual — used by grad)
+    signed_error = y - y_pred
+
     # ── Loss ─────────────────────────────────────────────────
     #   L_i = |y_i – ŷ_i|
-    error = loss_fn(y, y_pred)
+    _ = loss_fn(y, y_pred)
 
     # ── Gradient ─────────────────────────────────────────────
     #   ∂L/∂ŷ_i = –sign(y_i – ŷ_i)
     #   ∂L/∂w   = (1/n) X^T · ∂L/∂ŷ
     #   ∂L/∂b   = mean(∂L/∂ŷ)
-    dw, db = loss_fn.grad(X, error)
+    dw, db = loss_fn.grad(X, signed_error)
 
     # ── Update ───────────────────────────────────────────────
     #   w ← w – η · ∂L/∂w
@@ -59,7 +63,7 @@ for epoch in range(1, epochs + 1):
     model.backward(dw, db)
 
     if epoch % report_interval == 0:
-        mae = np.mean(np.abs(error))
+        mae = np.mean(np.abs(signed_error))
         print(f"epoch {epoch:4d}  MAE = {mae:.6f}  "
               f"w ≈ {model.weights}  b ≈ {model.bias:.4f}")
 ```
@@ -104,8 +108,9 @@ for epoch in range(epochs):
         X_batch = X[i:i+batch_size]
         y_batch = y[i:i+batch_size]
         y_pred = model.forward(X_batch)
-        error = loss_fn(y_batch, y_pred)
-        dw, db = loss_fn.grad(X_batch, error)
+        signed_error = y_batch - y_pred
+        _ = loss_fn(y_batch, y_pred)
+        dw, db = loss_fn.grad(X_batch, signed_error)
         model.backward(dw, db)
 ```
 
