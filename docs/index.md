@@ -16,18 +16,18 @@ Every supervised learning experiment in TinyMLx follows this canonical sequence:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                     TRAINING LOOP                       │
+│                     TRAINING LOOP                        │
 │                                                         │
 │  1. FORWARD     y_pred = model.forward(X)               │
 │       ŷ = Xw + b                                        │
 │                                                         │
-│  2. LOSS        error = loss_fn(y, y_pred)              │
-│       L = |y – ŷ|                                       │
+│  2. LOSS        loss_value = loss_fn(y, y_pred)         │
+│       L = ℓ(y, ŷ)                                       │
 │                                                         │
-│  3. GRADIENT    dw, db = loss_fn.grad(X, error)         │
-│       ∂L/∂w = (1/n) Xᵀ · ∂L/∂ŷ                          │
+│  3. GRADIENT    dw, db = loss_fn.grad(X, signed_error)  │
+│       ∂L/∂w = (1/n) Xᵀ · ∂L/∂ŷ                         │
 │                                                         │
-│  4. BACKWARD      model.backward(dw, db)                │
+│  4. UPDATE      model.backward(dw, db)                  │
 │       w ← w – η · ∂L/∂w                                 │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -52,4 +52,4 @@ If you want to log gradients before the update, you print them. If you want to t
 
 ---
 
-**Next:** Read the [Philosophy](philosophy.md) for an extended discussion of why abstraction-free design matters, or jump to the [API Reference](api/linear_regression.md) for the mathematical contract of each class.
+**Next:** Read the [Philosophy](philosophy.md) for an extended discussion of why abstraction-free design matters, or jump to the [API Reference](api/models/linear_regression.md) for the mathematical contract of each class.
