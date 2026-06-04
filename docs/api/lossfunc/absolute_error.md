@@ -41,7 +41,7 @@ Computes the partial derivatives of the loss with respect to the model parameter
 
 **Input:** $X \in \mathbb{R}^{n \times d}$ — design matrix (same $X$ passed to `forward`).
 
-**Input:** $e \in \mathbb{R}^{n}$ — the error vector produced by `__call__`.
+**Input:** $e \in \mathbb{R}^{n}$ — the **signed** residual vector $e_i = y_i - \hat{y}_i$ (not the output of `__call__`).
 
 **Output:** Tuple $(dw, db)$:
 - $dw \in \mathbb{R}^{d}$ — gradient with respect to weights.
@@ -114,13 +114,14 @@ y_pred = np.array([1.8, -0.7, 0.6])
 X = np.random.randn(3, 4)
 
 loss = AbsoluteError()
-error = loss(y_true, y_pred)     # [0.2, 0.3, 0.1]
-dw, db = loss.grad(X, error)     # gradients w.r.t. w and b
+abs_error = loss(y_true, y_pred)              # [0.2, 0.3, 0.1]
+signed_error = y_true - y_pred                # [0.2, -0.3, -0.1]
+dw, db = loss.grad(X, signed_error)           # gradients w.r.t. w and b
 ```
 
 ---
 
 ## Properties
 
-- **Scale-invariant gradient**: The magnitude of $\partial L/\partial \hat{y}$ is constant ($\pm 1$) regardless of the error size. This makes AbsoluteError **robust to outliers** but can produce vanishing or oscillating gradients when errors are small.
+- **Bounded gradient**: The magnitude of $\partial L/\partial \hat{y}$ is constant ($\pm 1$) regardless of the error size. This makes AbsoluteError **robust to outliers** but can cause oscillation near the optimum.
 - **Subgradient at zero**: `np.sign(0)` returns `0` in NumPy, which corresponds to the subgradient convention.

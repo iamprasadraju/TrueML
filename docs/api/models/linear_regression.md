@@ -30,7 +30,7 @@ LinearRegression(n_features: int, lr: float = 0.01)
 
 | Variable | Shape | Initial Value |
 |----------|-------|---------------|
-| `weights` | `(n_features,)` | $\mathcal{N}(0, 0.01)$ |
+| `weights` | `(n_features,)` | $\mathcal{N}(0, 0.01^2)$ |
 | `bias` | `scalar` | `0.0` |
 
 ---
@@ -101,13 +101,14 @@ loss = AbsoluteError()
 
 for epoch in range(500):
     y_pred = model.forward(X)
+    signed_error = y - y_pred
     error = loss(y, y_pred)
-    dw, db = loss.grad(X, error)
+    dw, db = loss.grad(X, signed_error)
     model.backward(dw, db)
 
     if epoch % 50 == 0:
-        mae = np.mean(np.abs(error))
+        mae = np.mean(np.abs(signed_error))
         print(f"epoch {epoch:3d}  MAE = {mae:.6f}")
 ```
 
-See the [Manual Gradient Descent](../recipes/manual_gradient_descent.md) recipe for a fully annotated walkthrough.
+See the [Manual Gradient Descent](../../recipes/manual_gradient_descent.md) recipe for a fully annotated walkthrough.

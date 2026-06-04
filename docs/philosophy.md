@@ -30,7 +30,7 @@ This documentation is styled as a **Laboratory Manual**, not a product reference
 - How to purify the product (gradient).
 - How to adjust the procedure (update).
 
-Each [API Reference](api/linear_regression.md) page in this manual is structured as a **Mathematical Contract** — a precise statement of inputs, outputs, and derivatives. The contracts are designed to be read alongside the source code: the implementation is the math.
+Each [API Reference](api/models/linear_regression.md) page in this manual is structured as a **Mathematical Contract** — a precise statement of inputs, outputs, and derivatives. The contracts are designed to be read alongside the source code: the implementation is the math.
 
 ### Statelessness Explained
 

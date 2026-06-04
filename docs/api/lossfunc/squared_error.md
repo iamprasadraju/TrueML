@@ -41,7 +41,7 @@ Computes the partial derivatives of the loss with respect to the model parameter
 
 **Input:** $X \in \mathbb{R}^{n \times d}$ — design matrix.
 
-**Input:** $e \in \mathbb{R}^{n}$ — *squared* error vector from `__call__`.
+**Input:** $e \in \mathbb{R}^{n}$ — the **signed** residual vector $e_i = y_i - \hat{y}_i$ (not the output of `__call__`).
 
 **Output:** Tuple $(dw, db)$.
 
@@ -62,11 +62,11 @@ $$
 \begin{aligned}
 \frac{\partial L}{\partial w}
 &= \frac{1}{n} X^\mathsf{T} g
-&=& -\frac{2}{n} X^\mathsf{T} (y - \hat{y})
+= -\frac{2}{n} X^\mathsf{T} (y - \hat{y})
 \\[6pt]
 \frac{\partial L}{\partial b}
 &= \frac{1}{n} \sum_{i=1}^{n} g_i
-&=& -\frac{2}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)
+= -\frac{2}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)
 \end{aligned}
 $$
 
@@ -94,8 +94,9 @@ y_pred = np.array([1.8, -0.7, 0.6])
 X = np.random.randn(3, 4)
 
 loss = SquaredError()
-error = loss(y_true, y_pred)     # [0.04, 0.09, 0.01]
-dw, db = loss.grad(X, error)     # gradients w.r.t. w and b
+sq_error = loss(y_true, y_pred)               # [0.04, 0.09, 0.01]
+signed_error = y_true - y_pred                # [0.2, -0.3, -0.1]
+dw, db = loss.grad(X, signed_error)           # gradients w.r.t. w and b
 ```
 
 ---
