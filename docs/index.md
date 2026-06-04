@@ -16,7 +16,7 @@ Every supervised learning experiment in TinyMLx follows this canonical sequence:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                     TRAINING LOOP                        │
+│                     TRAINING LOOP                       │
 │                                                         │
 │  1. FORWARD     y_pred = model.forward(X)               │
 │       ŷ = Xw + b                                        │
@@ -25,9 +25,9 @@ Every supervised learning experiment in TinyMLx follows this canonical sequence:
 │       L = ℓ(y, ŷ)                                       │
 │                                                         │
 │  3. GRADIENT    dw, db = loss_fn.grad(X, signed_error)  │
-│       ∂L/∂w = (1/n) Xᵀ · ∂L/∂ŷ                         │
+│       ∂L/∂w = (1/n) Xᵀ · ∂L/∂ŷ                          │
 │                                                         │
-│  4. UPDATE      model.backward(dw, db)                  │
+│  4. BACKWARD      model.backward(dw, db)                │
 │       w ← w – η · ∂L/∂w                                 │
 └─────────────────────────────────────────────────────────┘
 ```
