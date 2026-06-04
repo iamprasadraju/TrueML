@@ -18,31 +18,36 @@ A reference for how each library operation maps to its forward expression, its g
 
 ## Chain Rule Composition
 
-The full gradient computation composes two derivatives via the chain rule:
+The full gradient computation composes three derivatives via the chain rule:
 
 $$
 \frac{\partial L}{\partial w}
-= \frac{1}{n}
-\;
-\underbrace{
-\Bigl(
-\frac{\partial \hat{y}}{\partial w}
-\Bigr)^\mathsf{T}
-}_{
-= X^\mathsf{T}
-}
+= \frac{1}{n} X^\mathsf{T}
 \;
 \underbrace{
 \frac{\partial L}{\partial \hat{y}}
 }_{
 \text{from loss.grad()}
 }
-= \frac{1}{n} X^\mathsf{T}
+=
+\frac{1}{n} X^\mathsf{T}
 \;
+\underbrace{
+\Bigl(
+\frac{\partial \hat{y}}{\partial w}
+\Bigr)^\mathsf{T}
+}_{
+= X
+}
+\;
+\underbrace{
 \frac{\partial L}{\partial \hat{y}}
+}_{
+\text{from loss function}
+}
 $$
 
-Because $\hat{y} = Xw + b$, the Jacobian $\partial \hat{y} / \partial w = X$ (a matrix of shape $n \times d$), hence its transpose $X^\mathsf{T}$ (shape $d \times n$) appears in the formula to make the matrix multiplication dimensionally consistent.
+Because $\hat{y} = Xw + b$, the Jacobian $\partial \hat{y} / \partial w = X$, hence the transpose in the formula.
 
 ---
 
@@ -57,7 +62,7 @@ Because $\hat{y} = Xw + b$, the Jacobian $\partial \hat{y} / \partial w = X$ (a 
 
 ### Troubleshooting Common Gradient Pitfalls
 
-#### 1. Oscillation Near Optimum with AbsoluteError
+#### 1. Vanishing Gradients with AbsoluteError
 
 When $y_i \approx \hat{y}_i$, the error is small but $\partial L_i / \partial \hat{y}_i = \pm 1$ — the gradient **does not vanish** as the optimum is approached. This can cause oscillation around the minimum because the update step size does not decay with the error.
 

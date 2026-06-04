@@ -101,13 +101,12 @@ loss = AbsoluteError()
 
 for epoch in range(500):
     y_pred = model.forward(X)
-    signed_error = y - y_pred
     error = loss(y, y_pred)
-    dw, db = loss.grad(X, signed_error)
+    dw, db = loss.grad(X, error)
     model.backward(dw, db)
 
     if epoch % 50 == 0:
-        mae = np.mean(np.abs(signed_error))
+        mae = np.mean(np.abs(error))
         print(f"epoch {epoch:3d}  MAE = {mae:.6f}")
 ```
 

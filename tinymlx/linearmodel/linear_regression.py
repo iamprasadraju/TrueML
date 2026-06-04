@@ -5,7 +5,7 @@ class LinearRegression:
         # lr - learning rate
         self.lr = lr 
         # number of features X_train[1] (columns)
-        self.weights = np.random.randn(n_features) * 0.01
+        self.weights = np.random.rand(n_features) * 0.01
         self.bias = 0.0
 
     def forward(self, X_train):
