@@ -40,9 +40,10 @@ def visualize(func, x_range=(-5, 5), y_range=(-5, 5), resolution=50):
             )
         ]
     )
-
-    fig.update_layout(
-        title=getattr(func, "__name__", func.__class__.__name__),
+    # Use the class name for static/class methods; otherwise use the function name.
+    plot_name = func.__qualname__.split('.')[0]
+    fig.update_layout(  
+        title=plot_name,
         scene=dict(
             xaxis_title="y_true",
             yaxis_title="y_pred",
