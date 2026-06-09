@@ -30,7 +30,7 @@ LinearRegression(n_features: int, lr: float = 0.01)
 
 | Variable | Shape | Initial Value |
 |----------|-------|---------------|
-| `weights` | `(n_features,)` | $\mathcal{N}(0, 0.01)$ |
+| `weights` | `(n_features,)` | $\mathcal{N}(0, 0.01^2)$ |
 | `bias` | `scalar` | `0.0` |
 
 ---
@@ -110,4 +110,4 @@ for epoch in range(500):
         print(f"epoch {epoch:3d}  MAE = {mae:.6f}")
 ```
 
-See the [Manual Gradient Descent](../recipes/manual_gradient_descent.md) recipe for a fully annotated walkthrough.
+See the [Manual Gradient Descent](../../recipes/manual_gradient_descent.md) recipe for a fully annotated walkthrough.
