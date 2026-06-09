@@ -1,10 +1,8 @@
-from . import linearmodel
-from . import losses
-from . import errors
-from . import extras
+from . import errors, linearmodel, lossfunc
 
+__version__ = "0.0.1"
 __all__ = [
-    "linearmodel", 
-    "lossfunc", 
+    "linearmodel",
+    "lossfunc",
     "errors",
 ]

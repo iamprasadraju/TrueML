@@ -1,8 +1,7 @@
-import os
 import time
+import os
 import tracemalloc
 from functools import wraps
-
 
 def timeit(func):
     def enc_func(*args):
@@ -24,12 +23,11 @@ def _timeit(func, *args):
     func(*args)
     et = time.monotonic()
 
-    return et - st  # in seconds
+    return et - st
 
 
 def generate(lower=1, upper=100, size=(1, 1)):
     import numpy as np
-
     matrix = np.random.randint(lower, upper, size)
 
     return matrix
@@ -42,12 +40,11 @@ def memprofile(func):
         _ = func(*args)
 
         snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics("lineno")
+        top_stats = snapshot.statistics('lineno')
 
         for stat in top_stats[:10]:
             print(stat)
         tracemalloc.stop()
 
         return _
-
     return wrapper

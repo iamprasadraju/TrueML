@@ -1,5 +1,6 @@
-from tinymlx.errors import absolute_error
 import numpy as np
+
+from tinymlx.errors import absolute_error
 
 
 class MeanAbsoluteError:
@@ -19,6 +20,7 @@ class MeanAbsoluteError:
     >>> mae([10, 20], [8, 25])
     3.5
     """
+
     @staticmethod
     def surface(y_true, y_pred):
         return absolute_error(y_true, y_pred)
