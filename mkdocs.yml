@@ -37,6 +37,7 @@ extra_javascript:
 
 nav:
   - Home: index.md
+<<<<<<< Updated upstream
   - Philosophy: philosophy.md
   - API Reference:
     - Models:
@@ -49,3 +50,29 @@ nav:
     - Calculus Mapping: theory/calculus_mapping.md
   - Recipes:
     - Manual Gradient Descent: recipes/manual_gradient_descent.md
+=======
+  - Tutorials:
+    - Your First Training Loop: tutorials/your-first-training-loop.md
+    - Comparing Loss Functions: tutorials/comparing-loss-functions.md
+  - How-to Guides:
+    - Manual Gradient Descent: how-to/manual-gradient-descent.md
+    - Train on Real Data: how-to/train-on-real-data.md
+    - Implement Minibatch GD: how-to/implement-minibatch-gd.md
+    - Debug Gradient Issues: how-to/debug-gradient-issues.md
+  - Reference:
+    - LinearModels:
+      - LinearRegression: reference/linear-regression.md
+      - LogisticRegression: reference/logistic-regression.md
+    - Loss Functions:
+      - AbsoluteError: reference/absolute-error.md
+      - SquaredError: reference/squared-error.md
+      - SignedError: reference/signed-error.md
+    - Operations:
+      - gemm — Matrix Operations: reference/gemm.md
+      - helpers — Utilities: reference/helpers.md
+  - Explanation:
+    - No-Abstraction Philosophy: explanation/no-abstraction-philosophy.md
+    - About Gradient Descent: explanation/about-gradient-descent.md
+    - About Loss Functions: explanation/about-loss-functions.md
+    - Calculus Mapping: explanation/calculus-mapping.md
+>>>>>>> Stashed changes
