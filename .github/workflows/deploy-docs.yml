@@ -1,10 +1,11 @@
-name: ci
+name: deploy-docs
 on:
   push:
     branches: [main]
     paths:
           - "docs/**"
           - "mkdocs.yml"
+          - ".github/workflows/deploy-docs.yml"
 permissions:
   contents: write
 jobs:
