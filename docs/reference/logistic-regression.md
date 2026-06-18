@@ -1,6 +1,6 @@
 # LogisticRegression
 
-**Module:** `tinymlx.linearmodel.LogisticRegression`
+**Module:** `trueml.linearmodel.LogisticRegression`
 
 A binary logistic classifier of the form $p = \sigma(Xw + b)$ where $\sigma(z) = \frac{1}{1 + e^{-z}}$ is the logistic sigmoid function. Supports explicit gradient-descent training via the `backward` method.
 

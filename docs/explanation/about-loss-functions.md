@@ -15,7 +15,7 @@ The second role is often overlooked by beginners: the loss function must be diff
 
 Every loss function takes the residual $r_i = y_i - \hat{y}_i$ and produces a per-observation loss $L_i$. The gradient of the loss with respect to the prediction, $\partial L_i / \partial \hat{y}_i$, determines how the model responds to each observation.
 
-TinyMLx provides three loss functions that differ in how they map residuals to gradients:
+TrueML provides three loss functions that differ in how they map residuals to gradients:
 
 | Loss | $L_i$ | $\partial L_i / \partial \hat{y}_i$ | Gradient behavior |
 |------|-------|-------------------------------------|-------------------|
@@ -35,11 +35,11 @@ The tradeoff is well-known in statistics: L1 corresponds to the median of the co
 
 ### Signed error
 
-The signed error $r_i = y_i - \hat{y}_i$ is not a training loss in the usual sense — it has no gradient method in TinyMLx and is not used for optimization. It exists for diagnostic purposes: inspecting the sign of residuals reveals systematic bias. If all signed errors are positive, the model consistently under-predicts.
+The signed error $r_i = y_i - \hat{y}_i$ is not a training loss in the usual sense — it has no gradient method in TrueML and is not used for optimization. It exists for diagnostic purposes: inspecting the sign of residuals reveals systematic bias. If all signed errors are positive, the model consistently under-predicts.
 
-## Why TinyMLx separates loss from gradient
+## Why TrueML separates loss from gradient
 
-In most frameworks, the loss function and its gradient are combined. PyTorch's `MSELoss` computes both the loss value and the gradient in a single backward pass. TinyMLx separates them:
+In most frameworks, the loss function and its gradient are combined. PyTorch's `MSELoss` computes both the loss value and the gradient in a single backward pass. TrueML separates them:
 
 ```python
 error = loss_fn(y, y_pred)        # compute loss value

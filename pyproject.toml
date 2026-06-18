@@ -1,5 +1,5 @@
 [project]
-name = "tinymlx"
+name = "trueml"
 version = "0.1.0"
 description = "TinyML — minimal, high-performance Machine Learning library."
 

@@ -1,4 +1,4 @@
-# tinyMLx Documentation
+# TrueML Documentation
 
 **Version 0.1.0** — A no-abstraction mathematical sandbox for machine learning research.
 
@@ -8,11 +8,11 @@
 
 Most machine learning frameworks present a **black-box contract**: data goes in, a trained model comes out. `sklearn.linear_model.LinearRegression().fit(X, y)` conceals the forward pass, the loss evaluation, the gradient computation, and the parameter update behind a single method call. While convenient for production, this opacity is antithetical to **understanding**.
 
-TinyMLx adopts the opposite stance: **zero abstraction**. Every mathematical operation in the learning pipeline is a first-class function you invoke explicitly. The library provides the *primitive operations*; you write the *protocol*.
+TrueML adopts the opposite stance: **zero abstraction**. Every mathematical operation in the learning pipeline is a first-class function you invoke explicitly. The library provides the *primitive operations*; you write the *protocol*.
 
 ### The Four-Step Pipeline
 
-Every supervised learning experiment in TinyMLx follows this canonical sequence:
+Every supervised learning experiment in TrueML follows this canonical sequence:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -42,7 +42,7 @@ This documentation is organized by the Diátaxis framework: each document serves
 
 ### Tutorials — learning by doing
 
-Start here if you're new to TinyMLx. These guided lessons walk you through the core workflow step by step.
+Start here if you're new to TrueML. These guided lessons walk you through the core workflow step by step.
 
 - [Your First Training Loop](tutorials/your-first-training-loop.md) — train a linear model from scratch
 - [Comparing Loss Functions](tutorials/comparing-loss-functions.md) — observe how L1 and L2 loss differ
@@ -52,7 +52,7 @@ Start here if you're new to TinyMLx. These guided lessons walk you through the c
 Practical guides for specific problems. Use these when you know what you want to do.
 
 - [Manual Gradient Descent](how-to/manual-gradient-descent.md) — annotated gradient descent walkthrough
-- [Train on Real Data](how-to/train-on-real-data.md) — apply TinyMLx to Housing.csv
+- [Train on Real Data](how-to/train-on-real-data.md) — apply TrueML to Housing.csv
 - [Implement Minibatch GD](how-to/implement-minibatch-gd.md) — extend to minibatch training
 
 ### Reference — the machinery
