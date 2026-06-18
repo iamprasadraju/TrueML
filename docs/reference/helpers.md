@@ -1,6 +1,6 @@
 # helpers — Utilities
 
-**Module:** `tinymlx.helpers`
+**Module:** `trueml.helpers`
 
 Benchmarking and data generation utilities for experiments.
 
@@ -9,7 +9,7 @@ Benchmarking and data generation utilities for experiments.
 ## timeit
 
 ```python
-tinymlx.helpers.timeit(func: callable) -> callable
+trueml.helpers.timeit(func: callable) -> callable
 ```
 
 Decorator that times function execution. The number of iterations is controlled by the `I` environment variable.
@@ -33,8 +33,8 @@ Decorator that times function execution. The number of iterations is controlled 
 import os
 os.environ["I"] = "5"
 
-from tinymlx.gemm import matmul
-from tinymlx.helpers import timeit
+from trueml.gemm import matmul
+from trueml.helpers import timeit
 import numpy as np
 
 @timeit
@@ -51,7 +51,7 @@ bench()
 ## generate
 
 ```python
-tinymlx.helpers.generate(lower: int = 1, upper: int = 100, size: tuple = (1, 1)) -> np.ndarray
+trueml.helpers.generate(lower: int = 1, upper: int = 100, size: tuple = (1, 1)) -> np.ndarray
 ```
 
 Generates a random integer matrix.
@@ -69,7 +69,7 @@ Generates a random integer matrix.
 **Example:**
 
 ```python
-from tinymlx.helpers import generate
+from trueml.helpers import generate
 
 X = generate(lower=0, upper=10, size=(3, 4))
 # X.shape == (3, 4), values in [0, 10)
@@ -80,7 +80,7 @@ X = generate(lower=0, upper=10, size=(3, 4))
 ## memprofile
 
 ```python
-tinymlx.helpers.memprofile(func: callable) -> callable
+trueml.helpers.memprofile(func: callable) -> callable
 ```
 
 Decorator that profiles memory allocations of a function using `tracemalloc`.
@@ -98,8 +98,8 @@ Decorator that profiles memory allocations of a function using `tracemalloc`.
 **Example:**
 
 ```python
-from tinymlx.helpers import memprofile
-from tinymlx.gemm import matmul
+from trueml.helpers import memprofile
+from trueml.gemm import matmul
 import numpy as np
 
 @memprofile

@@ -1,6 +1,6 @@
 # gemm — Matrix Operations
 
-**Module:** `tinymlx.gemm`
+**Module:** `trueml.gemm`
 
 Primitive matrix multiplication routines. Provides both a pure-Python implementation for pedagogical transparency and a NumPy-native wrapper for performance.
 
@@ -9,7 +9,7 @@ Primitive matrix multiplication routines. Provides both a pure-Python implementa
 ## matmul
 
 ```python
-tinymlx.gemm.matmul(matrixA: np.ndarray, matrixB: np.ndarray) -> np.ndarray
+trueml.gemm.matmul(matrixA: np.ndarray, matrixB: np.ndarray) -> np.ndarray
 ```
 
 Pure-Python triple-loop matrix multiplication.
@@ -28,7 +28,7 @@ Pure-Python triple-loop matrix multiplication.
 
 ```python
 import numpy as np
-from tinymlx.gemm import matmul
+from trueml.gemm import matmul
 
 A = np.array([[1, 0, 4, 3],
               [3, 2, 1, 8],
@@ -46,7 +46,7 @@ C = matmul(A, B)
 ## npmatmul
 
 ```python
-tinymlx.gemm.npmatmul(matrixA: np.ndarray, matrixB: np.ndarray) -> np.ndarray
+trueml.gemm.npmatmul(matrixA: np.ndarray, matrixB: np.ndarray) -> np.ndarray
 ```
 
 NumPy-native matrix multiplication.
@@ -60,7 +60,7 @@ NumPy-native matrix multiplication.
 **Example:**
 
 ```python
-from tinymlx.gemm import npmatmul
+from trueml.gemm import npmatmul
 
 C = npmatmul(A, B)
 ```

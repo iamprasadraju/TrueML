@@ -1,6 +1,6 @@
 import numpy as np
 
-from tinymlx.errors import absolute_error
+from trueml.errors import absolute_error
 
 
 class MeanAbsoluteError:

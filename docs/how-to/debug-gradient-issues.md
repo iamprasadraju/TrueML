@@ -1,6 +1,6 @@
 # How to Debug Gradient Issues
 
-This guide shows you how to diagnose and fix common gradient problems in TinyMLx training loops.
+This guide shows you how to diagnose and fix common gradient problems in TrueML training loops.
 
 ## When to use this guide
 
@@ -63,7 +63,7 @@ AbsoluteError produces a gradient of constant magnitude $\pm 1$ per observation.
 **Solution:** Decrease the learning rate or switch to SquaredError:
 
 ```python
-from tinymlx.lossfunc import SquaredError
+from trueml.lossfunc import SquaredError
 loss_fn = SquaredError()
 ```
 

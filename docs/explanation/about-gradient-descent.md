@@ -1,6 +1,6 @@
 # About Gradient Descent
 
-Gradient descent is the iterative optimization algorithm at the core of every training loop in TinyMLx. This page explains why it works, what the gradient represents, and how the learning rate controls the optimization trajectory.
+Gradient descent is the iterative optimization algorithm at the core of every training loop in TrueML. This page explains why it works, what the gradient represents, and how the learning rate controls the optimization trajectory.
 
 ## Background
 
@@ -38,7 +38,7 @@ This is the fundamental justification for the gradient descent update rule.
 
 ### The chain rule connects model and loss
 
-In TinyMLx, the gradient computation is split into two explicit steps:
+In TrueML, the gradient computation is split into two explicit steps:
 
 1. **Loss gradient**: $\partial L / \partial \hat{y}$ — how the loss changes with respect to the prediction.
 2. **Parameter gradient**: $\partial L / \partial w = \frac{1}{n} X^\mathsf{T} (\partial L / \partial \hat{y})$ — how the loss changes with respect to the weights, via the chain rule through the linear model.
@@ -51,7 +51,7 @@ The learning rate $\eta$ is the single most important hyperparameter in gradient
 
 - **Too small**: Convergence is slow. The algorithm takes many small steps, wasting computation.
 - **Too large**: The update may overshoot the minimum, causing the loss to increase (diverge).
-- **Adaptive schemes**: More sophisticated optimizers (Adam, RMSprop) adjust the learning rate per parameter during training. TinyMLx intentionally omits these — the user implements the update rule manually.
+- **Adaptive schemes**: More sophisticated optimizers (Adam, RMSprop) adjust the learning rate per parameter during training. TrueML intentionally omits these — the user implements the update rule manually.
 
 ### Non-convexity and local minima
 
@@ -79,5 +79,5 @@ Others view it through the lens of **trust regions**: the learning rate defines 
 
 - **Learn it**: [Your First Training Loop](../tutorials/your-first-training-loop.md) — walk through gradient descent step by step
 - **Use it**: [How to Implement Minibatch Gradient Descent](../how-to/implement-minibatch-gd.md) — apply minibatch updates
-- **Details**: [Calculus Mapping](./calculus-mapping.md) — chain rule composition for all TinyMLx operations
+- **Details**: [Calculus Mapping](./calculus-mapping.md) — chain rule composition for all TrueML operations
 - **Related**: [About Loss Functions](./about-loss-functions.md) — how the choice of loss changes the gradient landscape

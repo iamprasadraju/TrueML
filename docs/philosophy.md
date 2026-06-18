@@ -18,7 +18,7 @@ What happens inside `.fit()`? For a linear model:
 3. Residuals are computed, but never exposed.
 4. Coefficients are stored as `model.coef_`.
 
-Each of these steps encodes a **mathematical decision** — and each decision is hidden from the caller. TinyMLx makes every decision explicit because **in research, the decision is the result**.
+Each of these steps encodes a **mathematical decision** — and each decision is hidden from the caller. TrueML makes every decision explicit because **in research, the decision is the result**.
 
 ### The Laboratory Manual Metaphor
 
@@ -34,7 +34,7 @@ Each [API Reference](api/models/linear_regression.md) page in this manual is str
 
 ### Statelessness Explained
 
-A model in TinyMLx has **two kinds of attributes**:
+A model in TrueML has **two kinds of attributes**:
 
 | Kind | Examples | Persists across calls? |
 |------|----------|-----------------------|
@@ -50,14 +50,14 @@ The absence of data caching is deliberate. If you want to compute gradients, you
 |-----------|-------------|--------------------|-----------------------|
 | scikit-learn | `fit(X, y)` | None | No |
 | PyTorch | `loss.backward()` | `param.grad` | Yes (via `optimizer.step()`) |
-| TinyMLx | Explicit loop | Returned from `grad()` | Yes (via `backward(dw, db)`) |
+| TrueML | Explicit loop | Returned from `grad()` | Yes (via `backward(dw, db)`) |
 
-TinyMLx goes beyond PyTorch in transparency: there is no autograd tape, no implicit graph building. The user calls `grad()` and receives **numpy arrays** containing the partial derivatives. What you do with them is your own procedure.
+TrueML goes beyond PyTorch in transparency: there is no autograd tape, no implicit graph building. The user calls `grad()` and receives **numpy arrays** containing the partial derivatives. What you do with them is your own procedure.
 
-### When (Not) to Use TinyMLx
+### When (Not) to Use TrueML
 
 **Use when:** You are learning or teaching ML fundamentals, prototyping a new optimization algorithm, or need a maximally transparent baseline.
 
 **Prefer other tools when:** You need GPU acceleration, autograd for deep networks, or production-grade solvers (QR decomposition, L-BFGS).
 
-TinyMLx is a **sandbox**, not a fortress. It is designed to be read, modified, and outgrown.
+TrueML is a **sandbox**, not a fortress. It is designed to be read, modified, and outgrown.

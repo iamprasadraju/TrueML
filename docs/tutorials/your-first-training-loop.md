@@ -10,15 +10,15 @@ The final script will be about 20 lines of Python — and every one of them will
 
 ## Before you start
 
-- Python 3.10+ with `numpy` and `tinymlx` installed
+- Python 3.10+ with `numpy` and `trueml` installed
 - Familiarity with basic NumPy array operations (shapes, indexing, `@` operator)
 
 ## Step 1: Import the library
 
 ```python
 import numpy as np
-from tinymlx.linearmodel import LinearRegression
-from tinymlx.lossfunc import AbsoluteError
+from trueml.linearmodel import LinearRegression
+from trueml.lossfunc import AbsoluteError
 ```
 
 Run this cell. If you see no errors, you're ready.
@@ -228,7 +228,7 @@ You have written a complete training loop: forward pass, loss computation, gradi
 - How gradient descent moves parameters to reduce the loss
 - How repeated updates cause the model to converge toward the true parameters
 
-This four-step sequence — forward, loss, gradient, backward — is the fundamental pattern of supervised learning in TinyMLx. Every experiment you build will follow this same structure.
+This four-step sequence — forward, loss, gradient, backward — is the fundamental pattern of supervised learning in TrueML. Every experiment you build will follow this same structure.
 
 ## Next steps
 

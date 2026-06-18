@@ -2,7 +2,7 @@
 
 **Objective:** Train a `LinearRegression` model on synthetic data using `AbsoluteError` loss, with every gradient descent step written explicitly.
 
-**Prerequisites:** `tinymlx`, `numpy`
+**Prerequisites:** `trueml`, `numpy`
 
 ---
 
@@ -12,8 +12,8 @@
 
 ```python
 import numpy as np
-from tinymlx.linearmodel import LinearRegression
-from tinymlx.lossfunc import AbsoluteError
+from trueml.linearmodel import LinearRegression
+from trueml.lossfunc import AbsoluteError
 
 n = 200               # number of observations
 d = 3                 # number of features
@@ -87,7 +87,7 @@ Recovered weights approach $[2.0, -1.5, 0.8]$ and bias approaches $0.5$.
 Replace `AbsoluteError` with `SquaredError` to observe how the gradient changes:
 
 ```python
-from tinymlx.lossfunc import SquaredError
+from trueml.lossfunc import SquaredError
 loss_fn = SquaredError()
 ```
 

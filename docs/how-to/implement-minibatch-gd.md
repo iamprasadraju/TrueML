@@ -23,8 +23,8 @@ Minibatch gradient descent estimates the gradient from a random subset of observ
 
 ```python
 import numpy as np
-from tinymlx.linearmodel import LinearRegression
-from tinymlx.lossfunc import AbsoluteError
+from trueml.linearmodel import LinearRegression
+from trueml.lossfunc import AbsoluteError
 
 def iterate_minibatches(X, y, batch_size, shuffle=True):
     n = len(X)

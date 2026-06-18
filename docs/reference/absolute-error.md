@@ -1,6 +1,6 @@
 # AbsoluteError
 
-**Module:** `tinymlx.lossfunc.AbsoluteError`
+**Module:** `trueml.lossfunc.AbsoluteError`
 
 The element-wise absolute error loss: $L_i = |y_i - \hat{y}_i|$. Also known as L1 loss. Callable via the class instance.
 
@@ -107,7 +107,7 @@ def grad(self, X, error):
 
 ```python
 import numpy as np
-from tinymlx.lossfunc import AbsoluteError
+from trueml.lossfunc import AbsoluteError
 
 y_true = np.array([2.0, -1.0, 0.5])
 y_pred = np.array([1.8, -0.7, 0.6])

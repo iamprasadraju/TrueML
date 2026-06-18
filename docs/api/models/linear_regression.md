@@ -1,6 +1,6 @@
 # LinearRegression
 
-**Module:** `tinymlx.linearmodel.LinearRegression`
+**Module:** `trueml.linearmodel.LinearRegression`
 
 A linear predictor of the form $\hat{y} = Xw + b$. Supports explicit gradient-descent training via the `backward` method.
 
@@ -89,8 +89,8 @@ $$
 
 ```python
 import numpy as np
-from tinymlx.linearmodel import LinearRegression
-from tinymlx.lossfunc import AbsoluteError
+from trueml.linearmodel import LinearRegression
+from trueml.lossfunc import AbsoluteError
 
 n, d = 100, 3
 X = np.random.randn(n, d)
