@@ -1,5 +1,2 @@
 numpy
 mkdocs-material
-plotly
-ruff
-pytest

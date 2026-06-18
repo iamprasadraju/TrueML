@@ -11,14 +11,18 @@ authors = [
 ]
 
 dependencies = [
-    "numpy",
-    "plotly",
+    "numpy"
 ]
 
 [build-system]
 requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
+
+[project.optional-dependencies]
+dev = [
+    "matplotlib"
+]
 docs = [
     "mkdocs-material",
     "mkdocs"
@@ -26,11 +30,5 @@ docs = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-
-[dependency-groups]
-dev = [
-    "pytest>=9.1.0",
-    "ruff>=0.15.17",
-]
 
 
