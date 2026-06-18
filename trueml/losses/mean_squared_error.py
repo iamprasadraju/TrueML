@@ -1,6 +1,6 @@
 import numpy as np
 
-from tinymlx.errors import residual_error
+from trueml.errors import residual_error
 
 
 class MeanSquaredError:
