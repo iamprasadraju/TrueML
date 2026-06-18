@@ -37,20 +37,7 @@ extra_javascript:
 
 nav:
   - Home: index.md
-<<<<<<< Updated upstream
   - Philosophy: philosophy.md
-  - API Reference:
-    - Models:
-      - LinearRegression: api/models/linear_regression.md
-      - LogisticRegression: api/models/logistic_regression.md
-    - Loss Functions:
-      - AbsoluteError: api/lossfunc/absolute_error.md
-      - SquaredError: api/lossfunc/squared_error.md
-  - Theory:
-    - Calculus Mapping: theory/calculus_mapping.md
-  - Recipes:
-    - Manual Gradient Descent: recipes/manual_gradient_descent.md
-=======
   - Tutorials:
     - Your First Training Loop: tutorials/your-first-training-loop.md
     - Comparing Loss Functions: tutorials/comparing-loss-functions.md
@@ -75,4 +62,4 @@ nav:
     - About Gradient Descent: explanation/about-gradient-descent.md
     - About Loss Functions: explanation/about-loss-functions.md
     - Calculus Mapping: explanation/calculus-mapping.md
->>>>>>> Stashed changes
+
