@@ -1,6 +1,6 @@
 # SignedError
 
-**Module:** `tinymlx.lossfunc.SignedError`
+**Module:** `trueml.lossfunc.SignedError`
 
 The element-wise signed error: $e_i = y_i - \hat{y}_i$. Measures raw deviation while preserving the sign of the residual. Callable via the class instance.
 
@@ -40,7 +40,7 @@ Computes the element-wise signed error.
 
 ```python
 import numpy as np
-from tinymlx.lossfunc import SignedError
+from trueml.lossfunc import SignedError
 
 y_true = np.array([2.0, -1.0, 0.5])
 y_pred = np.array([1.8, -0.7, 0.6])

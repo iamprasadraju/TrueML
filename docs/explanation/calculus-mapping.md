@@ -4,7 +4,7 @@ This page explains how the chain rule composes the forward expression of a linea
 
 ## Background
 
-A TinyMLx training loop consists of four steps: forward pass, loss computation, gradient computation, and parameter update. The gradient computation step is where calculus happens — it is where the derivatives of two different functions (the loss and the linear model) are combined via the chain rule.
+A TrueML training loop consists of four steps: forward pass, loss computation, gradient computation, and parameter update. The gradient computation step is where calculus happens — it is where the derivatives of two different functions (the loss and the linear model) are combined via the chain rule.
 
 The chain rule is the fundamental theorem of differential calculus that describes how to differentiate a composition of functions. If $z = f(g(x))$, then:
 
@@ -12,11 +12,11 @@ $$
 \frac{dz}{dx} = \frac{dz}{dg} \cdot \frac{dg}{dx}
 $$
 
-In TinyMLx, the prediction $\hat{y}$ is the output of the linear model ($\hat{y} = Xw + b$), and the loss $L$ is a function of $\hat{y}$. The gradient we need is $\partial L / \partial w$ — how the loss changes with respect to the weights, not the predictions.
+In TrueML, the prediction $\hat{y}$ is the output of the linear model ($\hat{y} = Xw + b$), and the loss $L$ is a function of $\hat{y}$. The gradient we need is $\partial L / \partial w$ — how the loss changes with respect to the weights, not the predictions.
 
 ## The core concept: two derivatives compose
 
-The gradient computation in TinyMLx factors into two independent derivatives, composed by the chain rule:
+The gradient computation in TrueML factors into two independent derivatives, composed by the chain rule:
 
 1. **Loss-to-prediction gradient**: $\partial L / \partial \hat{y}$ — computed by `loss_fn.grad()`. This is the gradient of the loss with respect to the model's output. It answers: "if the prediction were slightly different, how would the loss change?"
 
@@ -32,11 +32,11 @@ $$
 \frac{\partial L}{\partial \hat{y}}
 $$
 
-The factor $1/n$ appears because TinyMLx computes the mean gradient over all observations, not the sum.
+The factor $1/n$ appears because TrueML computes the mean gradient over all observations, not the sum.
 
 ### Why this separation matters
 
-By splitting the gradient into two explicit components, TinyMLx achieves two things:
+By splitting the gradient into two explicit components, TrueML achieves two things:
 
 - **Replaceability**: The loss-to-prediction gradient depends only on the loss function, not on the model. You can use the same loss function with any model that produces a prediction vector $\hat{y}$.
 - **Auditability**: Each component can be inspected independently. If the gradient looks wrong, you can check whether the loss gradient or the model Jacobian is the source.

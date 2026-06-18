@@ -9,14 +9,14 @@ A side-by-side experiment that trains two identical `LinearRegression` models on
 ## Before you start
 
 - Completed [Your First Training Loop](./your-first-training-loop.md) or are comfortable with the four-step pipeline
-- `numpy` and `tinymlx` installed
+- `numpy` and `trueml` installed
 
 ## Step 1: Set up the experiment
 
 ```python
 import numpy as np
-from tinymlx.linearmodel import LinearRegression
-from tinymlx.lossfunc import AbsoluteError, SquaredError
+from trueml.linearmodel import LinearRegression
+from trueml.lossfunc import AbsoluteError, SquaredError
 ```
 
 We will generate data with a known relationship and an outlier. The outlier will reveal how each loss function responds to anomalous observations.

@@ -1,6 +1,6 @@
 # SquaredError
 
-**Module:** `tinymlx.lossfunc.SquaredError`
+**Module:** `trueml.lossfunc.SquaredError`
 
 The element-wise squared error loss: $L_i = (y_i - \hat{y}_i)^2$. Also known as L2 loss. Penalizes large errors quadratically.
 
@@ -87,7 +87,7 @@ def grad(self, X, error):
 
 ```python
 import numpy as np
-from tinymlx.lossfunc import SquaredError
+from trueml.lossfunc import SquaredError
 
 y_true = np.array([2.0, -1.0, 0.5])
 y_pred = np.array([1.8, -0.7, 0.6])

@@ -12,7 +12,7 @@ class LinearRegression:
         w is the weight vector,
         b is the bias term.
 
-    TinyMLx exposes the forward pass, gradient computation, and parameter
+    TrueML exposes the forward pass, gradient computation, and parameter
     updates as separate, stateless operations to make the learning pipeline
     entirely transparent.
     """

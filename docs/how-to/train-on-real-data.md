@@ -4,12 +4,12 @@ This guide shows you how to load the Housing.csv dataset, prepare it for a linea
 
 ## When to use this guide
 
-Use this when you have a real-world tabular dataset and want to train a linear model with TinyMLx. This guide covers data loading, feature selection, normalization, and the training loop.
+Use this when you have a real-world tabular dataset and want to train a linear model with TrueML. This guide covers data loading, feature selection, normalization, and the training loop.
 
 ## Before you start
 
 - Completed [Your First Training Loop](../tutorials/your-first-training-loop.md) or are familiar with the four-step pipeline
-- The `datasets/Housing.csv` file exists in your TinyMLx installation
+- The `datasets/Housing.csv` file exists in your TrueML installation
 
 ## Context
 
@@ -27,8 +27,8 @@ Proper preprocessing — especially feature standardization — is essential for
 ```python
 import numpy as np
 import pandas as pd
-from tinymlx.linearmodel import LinearRegression
-from tinymlx.lossfunc import AbsoluteError
+from trueml.linearmodel import LinearRegression
+from trueml.lossfunc import AbsoluteError
 
 data = pd.read_csv("datasets/Housing.csv")
 print(data.head())
