@@ -1,6 +1,6 @@
 [project]
 name = "trueml"
-version = "0.1.0"
+version = "0.0.1"
 description = "TinyML — minimal, high-performance Machine Learning library."
 
 readme = "README.md"
