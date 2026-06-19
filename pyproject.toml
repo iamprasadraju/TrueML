@@ -1,7 +1,7 @@
 [project]
 name = "trueml"
 version = "0.0.1"
-description = "TinyML — minimal, high-performance Machine Learning library."
+description = "Machine learning without hidden abstractions."
 
 readme = "README.md"
 requires-python = ">=3.13"
@@ -11,24 +11,25 @@ authors = [
 ]
 
 dependencies = [
-    "numpy"
+    "numpy",
+    "plotly",
 ]
 
 [build-system]
 requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
-
 [project.optional-dependencies]
-dev = [
-    "matplotlib"
-]
 docs = [
+    "mkdocs",
     "mkdocs-material",
-    "mkdocs"
 ]
 
 [tool.setuptools.packages.find]
 where = ["."]
 
-
+[dependency-groups]
+dev = [
+    "pytest>=9.1.0",
+    "ruff>=0.15.17",
+]
