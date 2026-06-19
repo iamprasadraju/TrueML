@@ -4,4 +4,5 @@ __all__ = [
     "linearmodel",
     "losses",
     "errors",
+    "visualize",
 ]

@@ -2,7 +2,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 
-def visualize(func, x_range=(-5, 5), y_range=(-5, 5), resolution=50):
+def viz(func, x_range=(-5, 5), y_range=(-5, 5), resolution=50):
     """
     Visualize a two-variable function as a 3D surface.
 
