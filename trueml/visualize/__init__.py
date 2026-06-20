@@ -1,8 +1,7 @@
 from .viz import viz
-from .plot import plot
-
+from .plot import LivePlot
 
 __all__ = [
     viz,
-    plot,
+    LivePlot,
 ]
