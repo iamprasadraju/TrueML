@@ -2,5 +2,3 @@ __pycache__/
 *.pyc
 trueml.egg-info/
 site/
-datasets/
-notebooks/
