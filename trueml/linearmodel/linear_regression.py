@@ -73,8 +73,8 @@ class LinearRegression:
         """
         n = X.shape[0]
 
-        dw = (1 / n) * (X.T @ loss_gradient)
-        db = (1 / n) * np.sum(loss_gradient)
+        dw = X.T @ loss_gradient
+        db = np.sum(loss_gradient)
 
         return dw, db
 
