@@ -3,7 +3,7 @@ import numpy as np
 from trueml.errors import absolute_error
 
 
-class MeanAbsoluteError:
+class MAEloss:
     """
     Compute the mean absolute error (MAE).
 

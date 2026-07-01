@@ -31,24 +31,12 @@ def viz(func, x_range=(-5, 5), y_range=(-5, 5), resolution=50):
     X, Y = np.meshgrid(x, y)
     Z = func(X, Y)
 
-    fig = go.Figure(
-        data=[
-            go.Surface(
-                x=X,
-                y=Y,
-                z=Z
-            )
-        ]
-    )
+    fig = go.Figure(data=[go.Surface(x=X, y=Y, z=Z)])
     # Use the class name for static/class methods; otherwise use the function name.
-    plot_name = func.__qualname__.split('.')[0]
-    fig.update_layout(  
+    plot_name = func.__qualname__.split(".")[0]
+    fig.update_layout(
         title=plot_name,
-        scene=dict(
-            xaxis_title="y_true",
-            yaxis_title="y_pred",
-            zaxis_title="value"
-        )
+        scene=dict(xaxis_title="y_true", yaxis_title="y_pred", zaxis_title="value"),
     )
 
     fig.show()

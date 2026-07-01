@@ -3,7 +3,7 @@ import numpy as np
 from trueml.errors import residual_error
 
 
-class MeanSquaredError:
+class MSEloss:
     """
     Compute the mean squared error (MSE).
 
