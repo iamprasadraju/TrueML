@@ -7,12 +7,15 @@ def _in_jupyter():
     except NameError:
         return False
 
+
 class LivePlot:
-    def __init__(self, title="Training Loss", labels=None, xlabel="Epoch", ylabel="Loss"):
+    def __init__(
+        self, title="Training Loss", labels=None, xlabel="Epoch", ylabel="Loss"
+    ):
         if isinstance(title, (int, float)):
             raise TypeError(
                 "LivePlot is now a class, not a function. "
-                "Use `plot = LivePlot(\"Training Loss\")` then `plot(value)` "
+                'Use `plot = LivePlot("Training Loss")` then `plot(value)` '
                 "instead of `LivePlot(value)`."
             )
 
@@ -34,8 +37,7 @@ class LivePlot:
             return
 
         data = [
-            go.Scatter(x=[], y=[], mode="lines", name=label)
-            for label in self.labels
+            go.Scatter(x=[], y=[], mode="lines", name=label) for label in self.labels
         ]
         self.fig = go.FigureWidget(data=data)
         self.fig.update_layout(

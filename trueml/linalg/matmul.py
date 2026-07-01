@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def matmul(matrixA, matrixB):
     rowsA = matrixA.shape[0]
     colsA = matrixA.shape[1]
