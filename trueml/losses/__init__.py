@@ -1,7 +1,7 @@
-from .mean_absolute_error import MeanAbsoluteError
-from .mean_squared_error import MeanSquaredError
+from .mean_absolute_error import MAEloss
+from .mean_squared_error import MSEloss
 
 __all__ = [
-    "MeanAbsoluteError",
-    "MeanSquaredError",
+    "MAEloss",
+    "MSEloss",
 ]

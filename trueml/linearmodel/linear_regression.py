@@ -47,7 +47,9 @@ class LinearRegression:
         """
         return X @ self.weights + self.bias
 
-    def grad(self, X: np.ndarray, loss_gradient: np.ndarray) -> tuple[np.ndarray, float]:
+    def grad(
+        self, X: np.ndarray, loss_gradient: np.ndarray
+    ) -> tuple[np.ndarray, float]:
         """Compute gradients of model parameters using the upstream loss gradient.
 
         Parameters
@@ -71,7 +73,6 @@ class LinearRegression:
         >>> dloss = 2 * (y_pred - y_true)  # Explicit MSE gradient
         >>> dw, db = model.grad(X, dloss)
         """
-        n = X.shape[0]
 
         dw = X.T @ loss_gradient
         db = np.sum(loss_gradient)
