@@ -1,7 +1,8 @@
-from .viz import viz
+from .viz import viz2d, viz3d
 from .plot import LivePlot
 
 __all__ = [
-    viz,
+    viz2d,
+    viz3d,
     LivePlot,
 ]

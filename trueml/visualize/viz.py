@@ -2,7 +2,41 @@ import numpy as np
 import plotly.graph_objects as go
 
 
-def viz(func, x_range=(-5, 5), y_range=(-5, 5), resolution=50):
+def viz2d(func, x_range=(-5, 5), resolution=50):
+    """
+    Visualize a single-variable function as a 2D line plot.
+
+    Parameters
+    ----------
+    func : callable
+        Function accepting a NumPy array and returning a NumPy array.
+
+    x_range : tuple, default=(-5, 5)
+        Range of values for the x-axis.
+
+    resolution : int, default=50
+        Number of points sampled along the x-axis.
+
+    Examples
+    --------
+    >>> from trueml.activations import sigmoid
+    >>> viz2d(sigmoid, x_range=(-10, 10))
+    """
+    x = np.linspace(*x_range, resolution)
+    y = func(x)
+
+    fig = go.Figure(data=[go.Scatter(x=x, y=y, mode="lines")])
+    plot_name = func.__qualname__.split(".")[0]
+    fig.update_layout(
+        title=plot_name,
+        xaxis_title="x",
+        yaxis_title="value",
+    )
+
+    fig.show()
+
+
+def viz3d(func, x_range=(-5, 5), y_range=(-5, 5), resolution=50):
     """
     Visualize a two-variable function as a 3D surface.
 
@@ -22,9 +56,8 @@ def viz(func, x_range=(-5, 5), y_range=(-5, 5), resolution=50):
 
     Examples
     --------
-    >>> visualize(lambda x, y: np.abs(x - y))
+    >>> viz3d(lambda x, y: np.abs(x - y))
     """
-
     x = np.linspace(*x_range, resolution)
     y = np.linspace(*y_range, resolution)
 
@@ -32,7 +65,6 @@ def viz(func, x_range=(-5, 5), y_range=(-5, 5), resolution=50):
     Z = func(X, Y)
 
     fig = go.Figure(data=[go.Surface(x=X, y=Y, z=Z)])
-    # Use the class name for static/class methods; otherwise use the function name.
     plot_name = func.__qualname__.split(".")[0]
     fig.update_layout(
         title=plot_name,
