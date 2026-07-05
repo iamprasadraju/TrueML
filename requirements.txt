@@ -1,5 +1,3 @@
 numpy
-mkdocs-material
-plotly
-ruff
-pytest
+matplotlib
+ipympl
