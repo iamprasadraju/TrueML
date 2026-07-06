@@ -1,238 +1,135 @@
-# Your First Training Loop
+# Tutorial: Your First Training Loop
 
-In this tutorial, you will train a `LinearRegression` model from scratch using gradient descent. By the end, you will have written every line of a working training loop and seen the model converge from random parameters to a useful predictor.
+Welcome to TrueML! In this tutorial, you will build and train a linear regression model from scratch. Unlike other frameworks where you call `.fit()` and wait for a result, TrueML requires you to write the training loop yourself. By the end of this page, you will understand exactly how data flows from prediction, to loss, to gradient, to parameter update.
 
-## What you'll build
+## What You Will Learn
+- How to initialize a `LinearRegression` model.
+- How to compute predictions (the forward pass).
+- How to evaluate those predictions using `MSEloss`.
+- How the chain rule connects the loss gradient to the model's parameter gradients.
+- How to update the model using gradient descent.
 
-A complete training loop that learns the mapping $y = 2x_1 - 3x_2 + 0.5$ from synthetic data, using `AbsoluteError` loss and manual gradient descent.
+## Prerequisites
+- Basic familiarity with Python and NumPy.
+- Conceptual understanding of what linear regression does.
+- TrueML installed in your environment.
 
-The final script will be about 20 lines of Python — and every one of them will be under your control.
+---
 
-## Before you start
+## Step 1: Prepare the Data
 
-- Python 3.10+ with `numpy` and `trueml` installed
-- Familiarity with basic NumPy array operations (shapes, indexing, `@` operator)
-
-## Step 1: Import the library
+Machine learning requires data. Let's create a synthetic dataset where we know the true underlying relationship. We will generate 100 samples with 1 feature, and add a little bit of random noise.
 
 ```python
 import numpy as np
+import matplotlib.pyplot as plt
+
+# Generate 100 random values for our single feature X
+np.random.seed(42)
+X = np.random.randn(100, 1)
+
+# True relationship: y = 2.5 * X + 1.0 (plus some noise)
+y_true = 2.5 * X + 1.0 + np.random.randn(100, 1) * 0.2
+
+plt.scatter(X, y_true, alpha=0.5)
+plt.title("Synthetic Dataset")
+plt.show()
+```
+
+## Step 2: Initialize the Model and Loss
+
+We will use the `LinearRegression` model and the Mean Squared Error (`MSEloss`) function. The model requires the number of features (1 in this case) and a learning rate (how big of a step to take during updates).
+
+```python
 from trueml.linearmodel import LinearRegression
-from trueml.lossfunc import AbsoluteError
+from trueml.losses import MSEloss
+
+# Initialize model with 1 feature and learning rate 0.1
+model = LinearRegression(n_features=1, lr=0.1)
+
+# Initialize the loss function
+loss_fn = MSEloss()
+
+print("Initial weight:", model.weights)
+print("Initial bias:", model.bias)
 ```
 
-Run this cell. If you see no errors, you're ready.
+!!! note "Random Initialization"
+    Your initial weight will be a random number very close to zero, and your initial bias is `0.0`. The model knows nothing about the data yet.
 
-## Step 2: Create synthetic data
+## Step 3: The Four-Step Loop
 
-We need data with a known relationship so we can check whether the model learns the right parameters.
+The core of TrueML is the training loop. Every iteration (epoch) over the data involves four explicit steps. Let's write the loop and trace the math.
 
 ```python
-rng = np.random.default_rng(42)
+epochs = 50
+loss_history = []
 
-n = 100          # number of observations
-d = 2            # number of features
-
-true_w = np.array([2.0, -3.0])
-true_b = 0.5
-
-X = rng.normal(size=(n, d))
-y = X @ true_w + true_b + rng.normal(scale=0.1, size=n)
-```
-
-Your `X` should have shape `(100, 2)` and `y` should have shape `(100,)`. Let's verify:
-
-```python
-print("X shape:", X.shape)
-print("y shape:", y.shape)
-```
-
-The output should look like:
-
-```
-X shape: (100, 2)
-y shape: (100,)
-```
-
-Notice that `y` is a noisy version of `X @ true_w + true_b`. The noise (standard deviation 0.1) simulates measurement error, so the model cannot recover the exact ground truth — only approximate it.
-
-## Step 3: Initialize the model and loss function
-
-```python
-model = LinearRegression(n_features=d, lr=0.01)
-loss_fn = AbsoluteError()
-```
-
-The model's weights are initialized randomly (small normal values) and the bias starts at zero. Let's inspect the initial parameters:
-
-```python
-print("Initial weights:", model.weights)
-print("Initial bias:  ", model.bias)
-```
-
-The output should look something like:
-
-```
-Initial weights: [ 0.0043 -0.0089]
-Initial bias:    0.0
-```
-
-Your exact values will differ (random seed), but they should be near zero.
-
-## Step 4: Write the forward pass
-
-The first step inside the training loop is the forward pass: compute predictions.
-
-```python
-y_pred = model.forward(X)
-```
-
-`y_pred` now holds $\hat{y} = Xw + b$ for every observation. Let's see what the untrained model predicts:
-
-```python
-print("First 5 predictions:", y_pred[:5])
-print("First 5 true values:", y[:5])
-```
-
-The output should look something like:
-
-```
-First 5 predictions: [ 0.0152 -0.0089 -0.0162  0.0312 -0.0012]
-First 5 true values: [ 3.0614 -6.7174  0.3490  7.1130 -7.3924]
-```
-
-The predictions are near zero (because weights are near zero) while the true values span a wide range. The model is not yet useful.
-
-## Step 5: Compute the loss
-
-```python
-error = loss_fn(y, y_pred)
-```
-
-`error` contains the element-wise absolute error $|y_i - \hat{y}_i|$ for each observation. The mean absolute error (MAE) gives a single-number summary:
-
-```python
-print("MAE:", np.mean(error))
-```
-
-```
-MAE: 3.0157
-```
-
-A MAE of ~3 means the model is off by about 3 units on average — poor performance, as expected from an untrained model.
-
-## Step 6: Compute gradients
-
-```python
-dw, db = loss_fn.grad(X, error)
-```
-
-This single call computes the partial derivatives of the loss with respect to both the weights and the bias, via the chain rule. Let's inspect the gradient:
-
-```python
-print("dw:", dw)
-print("db:", db)
-```
-
-```
-dw: [-0.01413086  0.00854147]
-db: -0.014
-```
-
-These gradients tell us which direction increases the loss. To *reduce* the loss, we need to move the parameters in the opposite direction.
-
-## Step 7: Update the parameters
-
-```python
-model.backward(dw, db)
-```
-
-This subtracts `lr * dw` from the weights and `lr * db` from the bias. After one update, let's check the new parameters:
-
-```python
-print("Updated weights:", model.weights)
-print("Updated bias:  ", model.bias)
-```
-
-```
-Updated weights: [ 0.0144 -0.0175]
-Updated bias:    0.00014
-```
-
-The weights moved away from zero in the first step. They should be moving toward the true values `[2.0, -3.0]`.
-
-## Step 8: Assemble the full training loop
-
-Repeat steps 4-7 for many epochs:
-
-```python
-epochs = 500
-report_interval = 50
-
-for epoch in range(1, epochs + 1):
+for epoch in range(epochs):
+    # ----------------------------------------------------
+    # 1. FORWARD PASS
+    # The model predicts y using its current weights.
+    # Math: y_pred = X * w + b
+    # ----------------------------------------------------
     y_pred = model.forward(X)
-    error = loss_fn(y, y_pred)
-    dw, db = loss_fn.grad(X, error)
+    
+    # ----------------------------------------------------
+    # 2. LOSS COMPUTATION
+    # Evaluate how wrong the predictions are.
+    # Math: L = mean((y_true - y_pred)^2)
+    # ----------------------------------------------------
+    loss_value = loss_fn(y_true, y_pred)
+    loss_history.append(loss_value)
+    
+    # ----------------------------------------------------
+    # 3. GRADIENT COMPUTATION
+    # a) How does the loss change with respect to predictions?
+    loss_grad = loss_fn.grad(y_true, y_pred)
+    
+    # b) Chain rule: How does the loss change with respect to weights?
+    dw, db = model.grad(X, loss_grad)
+    
+    # ----------------------------------------------------
+    # 4. BACKWARD PASS
+    # Update the parameters using the gradients.
+    # Math: w = w - lr * dw
+    # ----------------------------------------------------
     model.backward(dw, db)
+    
+    # Print progress every 10 epochs
+    if (epoch + 1) % 10 == 0:
+        print(f"Epoch {epoch+1:2d} | Loss: {loss_value:.4f}")
 
-    if epoch % report_interval == 0:
-        mae = np.mean(np.abs(error))
-        print(f"epoch {epoch:4d}  MAE = {mae:.6f}")
+print("\nFinal weight:", model.weights)
+print("Final bias:", model.bias)
 ```
 
-Run the loop. The output should show the MAE decreasing:
+**Expected Output:**
+```text
+Epoch 10 | Loss: 0.5843
+Epoch 20 | Loss: 0.1064
+Epoch 30 | Loss: 0.0463
+Epoch 40 | Loss: 0.0387
+Epoch 50 | Loss: 0.0378
 
-```
-epoch   50  MAE = 0.493714
-epoch  100  MAE = 0.317615
-epoch  150  MAE = 0.244057
-epoch  200  MAE = 0.200163
-epoch  250  MAE = 0.170503
-epoch  300  MAE = 0.149089
-epoch  350  MAE = 0.133041
-epoch  400  MAE = 0.120960
-epoch  450  MAE = 0.111730
-epoch  500  MAE = 0.104453
+Final weight: [2.441]
+Final bias: 0.985
 ```
 
-The MAE drops from ~3.0 to ~0.1 — the model is learning. The improvements are large at first and gradually taper off.
+The model successfully recovered the underlying parameters (~2.5 for weight, ~1.0 for bias)!
 
-## Step 9: Inspect the learned parameters
+## What You've Learned
 
-After training, compare the learned parameters to the ground truth:
+You just trained a model without using `.fit()`. You explicitly executed the mathematical contract of machine learning:
+1. Generate predictions (`forward`).
+2. Measure the error (`__call__`).
+3. Compute derivatives using the chain rule (`grad`).
+4. Step in the direction that minimizes the error (`backward`).
 
-```python
-print("Learned weights:", model.weights)
-print("True weights:   ", true_w)
-print()
-print("Learned bias:", model.bias)
-print("True bias:   ", true_b)
-```
+Because TrueML exposes these primitive operations as NumPy arrays, you could insert `print(loss_grad)` or `print(dw)` inside the loop at any time to inspect the exact mathematical state of the optimization.
 
-```
-Learned weights: [ 1.9985 -2.9901]
-True weights:    [ 2.0 -3.0]
+## Next Steps
 
-Learned bias: 0.4964
-True bias:    0.5
-```
-
-The model has approximately recovered the data-generating parameters. The small discrepancies come from the noise we added to `y` and the fact that gradient descent only approximates the optimal solution in finite steps.
-
-## What you've learned
-
-You have written a complete training loop: forward pass, loss computation, gradient computation, and parameter update. You have seen:
-
-- How random initial parameters produce poor predictions
-- How gradients point in the direction of increasing loss
-- How gradient descent moves parameters to reduce the loss
-- How repeated updates cause the model to converge toward the true parameters
-
-This four-step sequence — forward, loss, gradient, backward — is the fundamental pattern of supervised learning in TrueML. Every experiment you build will follow this same structure.
-
-## Next steps
-
-- **Debug gradient issues**: See the [Calculus Mapping](../explanation/calculus-mapping.md) explanation for common gradient pitfalls.
-- **Train on real data**: Follow the [How to Train on Real Data](../how-to/train-on-real-data.md) guide.
-- **Understand the math**: Read [About Gradient Descent](../explanation/about-gradient-descent.md) for the theory behind this procedure.
-- **Switch loss functions**: Try the [SquaredError](../reference/squared-error.md) reference to see how L2 loss changes convergence behavior.
+- **Compare losses:** See what happens when the data contains extreme outliers in the [Comparing Loss Functions](comparing-loss-functions.md) tutorial.
+- **Deepen the math:** Read the [Calculus Mapping](../explanation/calculus-mapping.md) explanation to see the rigorous derivation of the chain rule used in step 3.
+- **Explore the API:** Check the [LinearRegression Reference](../reference/linear-regression.md) for the formal class contract.

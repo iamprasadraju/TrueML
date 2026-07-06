@@ -1,117 +1,97 @@
-# How to Debug Gradient Issues
+# How-to: Debug Gradient Issues
 
-This guide shows you how to diagnose and fix common gradient problems in TrueML training loops.
+Because TrueML exposes every numerical operation as a NumPy array, it is the perfect environment to learn how to diagnose and fix gradient descent failures. If your model's loss becomes `NaN` or refuses to decrease, the problem is almost always in the gradients.
 
-## When to use this guide
+This guide provides a diagnostic framework and practical solutions for common optimization failures.
 
-Use this when your model's loss is not decreasing, diverges to infinity, oscillates without converging, or converges to a suboptimal solution.
+## Symptom Table
 
-## Before you start
+| Symptom | Diagnosis | Likely Culprits |
+|---------|-----------|-----------------|
+| Loss immediately goes to `NaN` | Exploding Gradient | Learning rate too high, unscaled features. |
+| Loss drops initially, then violently bounces up and down | Oscillating Gradient | Learning rate slightly too high, or L1 loss behavior. |
+| Loss barely changes, weights don't update | Vanishing Gradient | Learning rate too low. |
+| Loss steadily increases | Divergence | Gradient points wrong way (custom loss bug) or LR too high. |
 
-- You have a working training loop (see [Manual Gradient Descent](./manual-gradient-descent.md))
-- Familiarity with the [Calculus Mapping](../explanation/calculus-mapping.md) explanation of chain rule composition
+---
 
-## Context
+## Issue 1: Exploding Gradients
 
-Gradient descent is a simple algorithm, but small problems in the gradient computation can produce large failures. Most issues fall into one of four categories: vanishing gradients, exploding gradients, learning rate sensitivity, or subgradient ambiguity.
+**The problem:** The parameter update ($dw$) is so massive that the new weights exceed floating-point maximums, resulting in `NaN` (Not a Number) or `Inf`.
 
-## Steps
-
-### 1. Identify the symptom
-
-| Symptom | Likely cause |
-|---------|-------------|
-| Loss increases every epoch | Learning rate too high |
-| Loss decreases then plateaus far from zero | Learning rate too low |
-| Loss oscillates without converging | L1 loss with insufficient LR decay |
-| Loss jumps to NaN | Exploding gradient (L2 with outlier) |
-| Loss decreases but model parameters are wrong | Feature scale imbalance |
-
-### 2. Check feature standardization
-
-Gradient direction is sensitive to feature scale. If one feature (e.g., area in square feet) has values in the thousands and another (e.g., number of bedrooms) has single-digit values, the gradient will be dominated by the larger-scale feature.
+**How to diagnose in TrueML:**
+Because TrueML exposes the gradient directly, you can simply print it. If you see massive numbers ($10^6$ or higher), your gradients are exploding.
 
 ```python
-X_mean = X.mean(axis=0)
-X_std = X.std(axis=0)
-X = (X - X_mean) / X_std
+# Inside your training loop:
+dw, db = model.grad(X, dloss)
+print("Max dw:", np.max(np.abs(dw))) # If this is massive, you have a problem.
 ```
 
-After standardization, each feature contributes proportionally to the gradient.
+**Solutions:**
 
-### 3. Inspect the gradient values
-
-Print the gradient before calling `backward`:
+1. **Standardize your features.** If a feature has values in the millions (like House Price), the gradient for that weight will be multiplied by millions. (See [Train on Real Data](train-on-real-data.md)).
+2. **Lower the learning rate.** Drop it by a factor of 10 (`lr=0.01` to `lr=0.001`) and observe.
+3. **Manual Gradient Clipping.** Because TrueML returns `dw` to you before updating, you can clip the array yourself!
 
 ```python
-y_pred = model.forward(X)
-error = loss_fn(y, y_pred)
-dw, db = loss_fn.grad(X, error)
+# Solution 3: Manual Gradient Clipping
+dloss = loss_fn.grad(y, y_pred)
+dw, db = model.grad(X, dloss)
 
-print("dw norm:", np.linalg.norm(dw))
-print("db:", db)
+# Clip the gradients to a maximum magnitude of 5.0
+clip_val = 5.0
+dw = np.clip(dw, -clip_val, clip_val)
+db = np.clip(db, -clip_val, clip_val)
+
+model.backward(dw, db)
 ```
 
-- If `dw norm` is > 10, the gradient is large — reduce learning rate.
-- If `dw norm` is < 1e-8, the gradient has vanished — increase learning rate or switch to SquaredError.
-- If `dw norm` oscillates without trending downward, you may need learning rate scheduling.
+---
 
-### 4. Handle vanishing gradients with L1 loss
+## Issue 2: Oscillating Gradients
 
-AbsoluteError produces a gradient of constant magnitude $\pm 1$ per observation. Near the optimum, the gradient does not shrink — the model takes the same-size step regardless of how close it is to the minimum. This can cause oscillation.
+**The problem:** The model repeatedly overshoots the minimum. The loss drops, then jumps up, then drops, then jumps up.
 
-**Solution:** Decrease the learning rate or switch to SquaredError:
+**How to diagnose in TrueML:**
+Plot the loss curve using `plot_metrics`. If it looks like a zigzag pattern, the model is oscillating.
+
+**Solutions:**
+
+1. **Lower the learning rate.** Oscillation means the step size is too large to settle into the valley.
+2. **Check your loss function.** If you are using `MAEloss` (L1), oscillation near the minimum is a mathematical guarantee because the gradient magnitude never shrinks (it is always $\pm 1$). Switch to `MSEloss` if you need perfect convergence, or decay your learning rate over time.
 
 ```python
-from trueml.lossfunc import SquaredError
-loss_fn = SquaredError()
+# Solution 2b: Manual Learning Rate Decay
+for epoch in range(1000):
+    # Decay the learning rate linearly over time
+    current_lr = 0.1 * (1 - (epoch / 1000))
+    model.lr = current_lr # TrueML lets you mutate this freely!
+    
+    # ... rest of training loop ...
 ```
 
-With SquaredError, the gradient magnitude is proportional to the error, so it naturally shrinks near the optimum.
+---
 
-### 5. Handle exploding gradients with L2 loss
+## Issue 3: Vanishing Gradients
 
-SquaredError produces gradients proportional to the error. A single outlier with $|y - \hat{y}| > 10$ produces a gradient component of magnitude $2|e_i| > 20$, which can dominate the update.
+**The problem:** The gradients are so close to zero that the weights barely change.
 
-**Solution:** Clip the gradient before calling `backward`:
+**How to diagnose in TrueML:**
+Print the gradients. If they are in the range of $10^{-6}$, your model is barely learning.
 
 ```python
-dw = np.clip(dw, -1.0, 1.0)
-db = np.clip(db, -1.0, 1.0)
+# Inside your training loop:
+dw, db = model.grad(X, dloss)
+print("Mean dw magnitude:", np.mean(np.abs(dw))) 
 ```
 
-Or switch to AbsoluteError, which is robust to outliers.
+**Solutions:**
 
-### 6. Adjust the learning rate
+1. **Increase the learning rate.** 
+2. **Check the loss.** If your model is already making near-perfect predictions, the gradient naturally vanishes (this is a good thing!).
+3. **Check for dead activations.** If you are using `trueml.activations.sigmoid` for a regression task where targets are outside the $(0, 1)$ range, the sigmoid will saturate (output exactly 0 or 1), driving its local derivative to 0, killing the gradient. Ensure you match the activation to the domain of your targets.
 
-If the loss increases or oscillates, reduce `lr` by a factor of 10:
+## Summary
 
-```python
-model = LinearRegression(n_features=d, lr=0.001)  # instead of 0.01
-```
-
-If the loss decreases very slowly, increase `lr`:
-
-```python
-model = LinearRegression(n_features=d, lr=0.1)  # instead of 0.01
-```
-
-A good heuristic: start with `lr = 0.01` for standardized data, `lr = 0.001` for unstandardized data with large feature values.
-
-## Troubleshooting
-
-**Problem: Loss goes to NaN after a few epochs**
-Solution: This is almost always an exploding gradient. Clip gradients or reduce learning rate.
-
-**Problem: Loss is flat from epoch 1**
-Solution: The learning rate is too low or the gradient is zero. Check that `dw` is non-zero. If using L1 loss, check that not all predictions equal the targets (subgradient of zero).
-
-**Problem: Training is slow even though gradients look reasonable**
-Solution: Try minibatch gradient descent (see [Implement Minibatch GD](./implement-minibatch-gd.md)) for faster per-epoch progress, or increase the learning rate.
-
-## Related guides
-
-- [Manual Gradient Descent](./manual-gradient-descent.md) — baseline training loop
-- [How to Train on a Real Dataset](./train-on-real-data.md) — feature standardization in practice
-- [About Gradient Descent](../explanation/about-gradient-descent.md) — theory of learning rate and convergence
-- [About Loss Functions](../explanation/about-loss-functions.md) — L1 vs L2 gradient behavior
+TrueML's "No Abstraction" philosophy makes debugging gradients trivial. You do not need complex hooking mechanisms to inspect gradients; they are returned to you as standard NumPy arrays in the middle of your `for` loop. If something is broken, `print(dw)` is your best friend.

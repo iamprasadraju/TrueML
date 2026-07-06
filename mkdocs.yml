@@ -47,19 +47,23 @@ nav:
     - Implement Minibatch GD: how-to/implement-minibatch-gd.md
     - Debug Gradient Issues: how-to/debug-gradient-issues.md
   - Reference:
-    - LinearModels:
+    - Linear Models:
       - LinearRegression: reference/linear-regression.md
       - LogisticRegression: reference/logistic-regression.md
     - Loss Functions:
-      - AbsoluteError: reference/absolute-error.md
-      - SquaredError: reference/squared-error.md
-      - SignedError: reference/signed-error.md
-    - Operations:
-      - gemm — Matrix Operations: reference/gemm.md
-      - helpers — Utilities: reference/helpers.md
+      - MSEloss: reference/mse-loss.md
+      - MAEloss: reference/mae-loss.md
+    - Error Functions:
+      - errors: reference/errors.md
+    - Activations:
+      - activations: reference/activations.md
+    - Linear Algebra:
+      - linalg: reference/linalg.md
+    - Visualization:
+      - visualization: reference/visualization.md
+    - Utilities:
+      - helpers: reference/helpers.md
   - Explanation:
-    - No-Abstraction Philosophy: explanation/no-abstraction-philosophy.md
     - About Gradient Descent: explanation/about-gradient-descent.md
     - About Loss Functions: explanation/about-loss-functions.md
     - Calculus Mapping: explanation/calculus-mapping.md
-
