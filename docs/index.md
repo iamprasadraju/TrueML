@@ -1,88 +1,134 @@
-# TrueML Documentation
+# TrueML
 
-**Version 0.1.0** — A no-abstraction mathematical sandbox for machine learning research.
+**Machine learning without hidden abstractions.**
+
+*Version 0.0.1* · [GitHub](https://github.com/iamprasadraju/trueml) · [API Reference](reference/linear-regression.md)
 
 ---
 
-## The No-Abstraction Philosophy
+## What is TrueML?
 
-Most machine learning frameworks present a **black-box contract**: data goes in, a trained model comes out. `sklearn.linear_model.LinearRegression().fit(X, y)` conceals the forward pass, the loss evaluation, the gradient computation, and the parameter update behind a single method call. While convenient for production, this opacity is antithetical to **understanding**.
+TrueML is a Python library that exposes every mathematical operation in the machine learning pipeline as a first-class function you invoke explicitly. There is no `.fit()`. There is no hidden state. The user writes the training loop, keeping every mathematical operation visible and auditable.
 
-TrueML adopts the opposite stance: **zero abstraction**. Every mathematical operation in the learning pipeline is a first-class function you invoke explicitly. The library provides the *primitive operations*; you write the *protocol*.
+```python
+import numpy as np
+from trueml.linearmodel import LinearRegression
+from trueml.losses import MSEloss
 
-### The Four-Step Pipeline
+model = LinearRegression(n_features=3, lr=0.01)
+loss_fn = MSEloss()
+
+for epoch in range(500):
+    y_pred = model.forward(X)               # ŷ = Xw + b
+    loss = loss_fn(y, y_pred)               # L = mean((y - ŷ)²)
+    dloss = loss_fn.grad(y, y_pred)         # ∂L/∂ŷ = (2/n)(ŷ - y)
+    dw, db = model.grad(X, dloss)           # ∂L/∂w = Xᵀ · ∂L/∂ŷ
+    model.backward(dw, db)                  # w ← w - η · ∂L/∂w
+```
+
+Every step maps directly to a mathematical equation. Every intermediate value is a NumPy array you can print, plot, or modify.
+
+---
+
+## The Four-Step Pipeline
 
 Every supervised learning experiment in TrueML follows this canonical sequence:
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                     TRAINING LOOP                        │
-│                                                         │
-│  1. FORWARD     y_pred = model.forward(X)               │
-│       ŷ = Xw + b                                        │
-│                                                         │
-│  2. LOSS        error = loss_fn(y, y_pred)              │
-│       L = |y – ŷ|                                       │
-│                                                         │
-│  3. GRADIENT    dw, db = loss_fn.grad(X, error)         │
-│       ∂L/∂w = (1/n) Xᵀ · ∂L/∂ŷ                         │
-│                                                         │
-│  4. BACKWARD      model.backward(dw, db)                │
-│       w ← w – η · ∂L/∂w                                 │
-└─────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────┐
+│                       TRAINING LOOP                           │
+│                                                               │
+│  1. FORWARD      y_pred = model.forward(X)                    │
+│                  ŷ = Xw + b                                   │
+│                                                               │
+│  2. LOSS         loss = loss_fn(y, y_pred)                    │
+│                  L = mean((y - ŷ)²)                           │
+│                                                               │
+│  3. GRADIENT     dloss = loss_fn.grad(y, y_pred)              │
+│                  dw, db = model.grad(X, dloss)                │
+│                  ∂L/∂w = Xᵀ · ∂L/∂ŷ                          │
+│                                                               │
+│  4. BACKWARD     model.backward(dw, db)                       │
+│                  w ← w − η · ∂L/∂w                            │
+└───────────────────────────────────────────────────────────────┘
 ```
 
-There is no `.fit()`. There is no hidden state. The user controls every step.
+There is no `.fit()`. There is no hidden state. You control every step.
 
 ---
 
-## Documentation by Category
+## Installation
 
-This documentation is organized by the Diátaxis framework: each document serves exactly one user need.
+```bash
+pip install trueml
+```
 
-### Tutorials — learning by doing
+!!! note "Requirements"
+    TrueML requires **Python ≥ 3.13** and depends on `numpy` and `matplotlib`.
+
+---
+
+## Documentation
+
+This documentation is organized using the [Diátaxis](https://diataxis.fr/) framework. Each page serves exactly one purpose.
+
+### :material-school: Tutorials — Learning by doing
 
 Start here if you're new to TrueML. These guided lessons walk you through the core workflow step by step.
 
-- [Your First Training Loop](tutorials/your-first-training-loop.md) — train a linear model from scratch
-- [Comparing Loss Functions](tutorials/comparing-loss-functions.md) — observe how L1 and L2 loss differ
+| Tutorial | Description |
+|----------|-------------|
+| [Your First Training Loop](tutorials/your-first-training-loop.md) | Train a linear model from scratch using gradient descent |
+| [Comparing Loss Functions](tutorials/comparing-loss-functions.md) | Observe how MSE and MAE loss differ in gradient behavior |
 
-### How-to Guides — accomplishing tasks
+### :material-hammer-wrench: How-to Guides — Accomplishing tasks
 
 Practical guides for specific problems. Use these when you know what you want to do.
 
-- [Manual Gradient Descent](how-to/manual-gradient-descent.md) — annotated gradient descent walkthrough
-- [Train on Real Data](how-to/train-on-real-data.md) — apply TrueML to Housing.csv
-- [Implement Minibatch GD](how-to/implement-minibatch-gd.md) — extend to minibatch training
+| Guide | Description |
+|-------|-------------|
+| [Manual Gradient Descent](how-to/manual-gradient-descent.md) | Annotated gradient descent walkthrough |
+| [Train on Real Data](how-to/train-on-real-data.md) | Apply TrueML to the Housing dataset |
+| [Implement Minibatch GD](how-to/implement-minibatch-gd.md) | Extend to minibatch training |
+| [Debug Gradient Issues](how-to/debug-gradient-issues.md) | Diagnose vanishing, exploding, and oscillating gradients |
 
-### Reference — the machinery
+### :material-book-open-page-variant: Reference — The machinery
 
 Complete descriptions of every API component. Consult these when you need an exact specification.
 
-- **LinearModels**: [LinearRegression](reference/linear-regression.md), [LogisticRegression](reference/logistic-regression.md)
-- **Loss Functions**: [AbsoluteError](reference/absolute-error.md), [SquaredError](reference/squared-error.md), [SignedError](reference/signed-error.md)
-- **Operations**: [gemm — Matrix Operations](reference/gemm.md), [helpers — Utilities](reference/helpers.md)
+| Module | Components |
+|--------|------------|
+| **Linear Models** | [LinearRegression](reference/linear-regression.md) · [LogisticRegression](reference/logistic-regression.md) |
+| **Loss Functions** | [MSEloss](reference/mse-loss.md) · [MAEloss](reference/mae-loss.md) |
+| **Error Functions** | [errors](reference/errors.md) — `residual_error`, `absolute_error` |
+| **Activations** | [activations](reference/activations.md) — `sigmoid`, `linear` |
+| **Linear Algebra** | [linalg](reference/linalg.md) — `matmul`, `npmatmul` |
+| **Visualization** | [visualization](reference/visualization.md) — `plot2d`, `plot3d`, `plot_metrics`, `LivePlot` |
+| **Utilities** | [helpers](reference/helpers.md) — `timeit`, `generate`, `memprofile` |
 
-### Explanation — understanding why
+### :material-lightbulb: Explanation — Understanding why
 
-Conceptual discussions that provide context and background. Read these when you want to deepen your understanding.
+Conceptual discussions that provide context and background. Read these to deepen your understanding.
 
-- [No-Abstraction Philosophy](explanation/no-abstraction-philosophy.md) — why zero abstraction matters
-- [About Gradient Descent](explanation/about-gradient-descent.md) — theory behind the update rule
-- [About Loss Functions](explanation/about-loss-functions.md) — how loss functions shape learning
-- [Calculus Mapping](explanation/calculus-mapping.md) — chain rule composition
+| Topic | Description |
+|-------|-------------|
+| [No-Abstraction Philosophy](philosophy.md) | Why zero abstraction matters |
+| [About Gradient Descent](explanation/about-gradient-descent.md) | Theory behind the update rule |
+| [About Loss Functions](explanation/about-loss-functions.md) | How loss functions shape learning |
+| [Calculus Mapping](explanation/calculus-mapping.md) | Chain rule composition in TrueML |
 
 ---
 
-## Who This Library Is For
+## Who TrueML Is For
 
-- Researchers who want to **read every line** of their training loop.
-- Students learning how gradients actually **flow** through a linear model.
-- Practitioners who need a **minimal, auditable** baseline before layering complexity.
-<<<<<<< Updated upstream
+- **Researchers** who want to read every line of their training loop.
+- **Students** learning how gradients actually flow through a linear model.
+- **Practitioners** who need a minimal, auditable baseline before layering complexity.
 
 ---
 
-**Next:** Read the [Philosophy](philosophy.md) for an extended discussion of why abstraction-free design matters, or jump to the [API Reference](api/models/linear_regression.md) for the mathematical contract of each class.
-=======
->>>>>>> Stashed changes
+## Quick Links
+
+- **New?** Start with the [Your First Training Loop](tutorials/your-first-training-loop.md) tutorial.
+- **Curious about the design?** Read the [Philosophy](philosophy.md) page.
+- **Looking for a specific function?** Jump to the [API Reference](reference/linear-regression.md).

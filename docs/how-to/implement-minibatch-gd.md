@@ -1,121 +1,91 @@
-# How to Implement Minibatch Gradient Descent
+# How-to: Implement Minibatch Gradient Descent
 
-This guide shows you how to modify a full-batch training loop to process data in minibatches, which is essential for scaling to larger datasets.
+By default, the tutorials show Full-Batch Gradient Descent: the model computes the loss and gradients across the entire dataset $X$ before making a single parameter update. If your dataset contains 1,000,000 rows, a single update step will be very slow and memory-intensive.
+
+This guide shows how to adapt the TrueML training loop to use **Minibatch Gradient Descent**, where updates occur using small chunks of data.
 
 ## When to use this guide
+- Your dataset is too large to fit in memory or processes too slowly.
+- You want to introduce stochastic noise to escape saddle points or local minima.
+- You want faster initial convergence.
 
-Use this when your dataset is too large to fit in memory for a single gradient computation, or when you want the faster convergence that noisy minibatch updates provide.
+---
 
-## Before you start
+## 1. Creating a Batch Iterator
 
-- Familiarity with the full-batch training loop (see [Manual Gradient Descent](./manual-gradient-descent.md))
-- A dataset loaded as numpy arrays `X` and `y`
-
-## Context
-
-In full-batch gradient descent, the gradient is computed over all observations before each update. For large $n$, this is expensive and the gradient is deterministic — it always follows the steepest direction for the full dataset.
-
-Minibatch gradient descent estimates the gradient from a random subset of observations. The estimate is noisy, but each update is much cheaper, and the noise can help escape shallow local minima.
-
-## Steps
-
-### 1. Define the batch iterator
+Because TrueML does not have built-in data loaders (like PyTorch's `DataLoader`), you must write a simple generator to yield batches of data.
 
 ```python
 import numpy as np
-from trueml.linearmodel import LinearRegression
-from trueml.lossfunc import AbsoluteError
 
 def iterate_minibatches(X, y, batch_size, shuffle=True):
-    n = len(X)
-    indices = np.arange(n)
+    """Yields consecutive minibatches from X and y."""
+    assert X.shape[0] == y.shape[0]
+    indices = np.arange(X.shape[0])
+    
     if shuffle:
-        rng = np.random.default_rng()
-        rng.shuffle(indices)
-    for start in range(0, n, batch_size):
-        batch_idx = indices[start:start + batch_size]
-        yield X[batch_idx], y[batch_idx]
+        np.random.shuffle(indices)
+        
+    for start_idx in range(0, X.shape[0], batch_size):
+        end_idx = min(start_idx + batch_size, X.shape[0])
+        excerpt = indices[start_idx:end_idx]
+        yield X[excerpt], y[excerpt]
 ```
 
-### 2. Initialize model and loss
+---
+
+## 2. The Minibatch Training Loop
+
+We now add an inner loop over the batches. An **epoch** is defined as one full pass through the dataset, meaning multiple updates will happen per epoch.
 
 ```python
-model = LinearRegression(n_features=X.shape[1], lr=0.01)
-loss_fn = AbsoluteError()
-```
+from trueml.linearmodel import LinearRegression
+from trueml.losses import MSEloss
 
-### 3. Run the minibatch training loop
-
-```python
-epochs = 50
+# Assume X and y are already defined (e.g., 10,000 rows)
+n_samples, n_features = X.shape
 batch_size = 32
 
-for epoch in range(1, epochs + 1):
-    epoch_losses = []
-    for X_batch, y_batch in iterate_minibatches(X, y, batch_size):
+model = LinearRegression(n_features=n_features, lr=0.01)
+loss_fn = MSEloss()
+
+epochs = 20
+
+for epoch in range(epochs):
+    epoch_loss = 0.0
+    num_batches = 0
+    
+    # Inner loop: iterate over minibatches
+    for X_batch, y_batch in iterate_minibatches(X, y, batch_size, shuffle=True):
+        
+        # 1. Forward on the BATCH
         y_pred = model.forward(X_batch)
-        error = loss_fn(y_batch, y_pred)
-        dw, db = loss_fn.grad(X_batch, error)
+        
+        # 2. Loss on the BATCH
+        loss = loss_fn(y_batch, y_pred)
+        epoch_loss += loss
+        num_batches += 1
+        
+        # 3. Gradients on the BATCH
+        dloss = loss_fn.grad(y_batch, y_pred)
+        dw, db = model.grad(X_batch, dloss)
+        
+        # 4. Update on the BATCH
         model.backward(dw, db)
-        epoch_losses.append(np.mean(np.abs(error)))
-
-    if epoch % 10 == 0:
-        print(f"epoch {epoch:3d}  mean MAE = {np.mean(epoch_losses):.6f}")
+        
+    # Calculate average loss across the epoch for reporting
+    avg_loss = epoch_loss / num_batches
+    print(f"Epoch {epoch+1:2d} | Avg Loss: {avg_loss:.4f}")
 ```
 
-### 4. Full-batch comparison
+## Comparison with Full-Batch
 
-To see the effect of minibatch noise, compare with the full-batch equivalent:
+| | Full-Batch | Minibatch |
+|---|---|---|
+| **Updates per Epoch** | 1 | `N / batch_size` |
+| **Gradient Quality** | Exact average | Noisy estimate |
+| **Memory Usage** | High (Entire dataset) | Low (Just the batch) |
+| **Learning Rate Need** | Can be large | Must be smaller (due to noise) |
 
-```python
-model_fb = LinearRegression(n_features=X.shape[1], lr=0.01)
-epochs_fb = 50
-
-for epoch in range(1, epochs_fb + 1):
-    y_pred = model_fb.forward(X)
-    error = loss_fn(y, y_pred)
-    dw, db = loss_fn.grad(X, error)
-    model_fb.backward(dw, db)
-
-    if epoch % 10 == 0:
-        mae = np.mean(np.abs(error))
-        print(f"epoch {epoch:3d}  full-batch MAE = {mae:.6f}")
-```
-
-## Troubleshooting
-
-**Problem: Minibatch training is noisier than full-batch**
-Solution: This is expected. The gradient from a small batch is a noisy estimate of the true gradient. Increasing batch size reduces noise but increases computation per update.
-
-**Problem: Model does not converge with small batch sizes**
-Solution: Try increasing the learning rate. Noisy gradients need slightly larger steps to make progress. Alternatively, increase batch size to reduce gradient variance.
-
-## Variations
-
-**SGD (batch size = 1):**
-Set `batch_size = 1`. Each update uses a single observation. This is maximally noisy but maximally fast per update.
-
-**Shuffling every epoch:**
-The `iterate_minibatches` function above shuffles every pass through the data. To disable shuffling (for debugging), pass `shuffle=False`.
-
-**Tracking the full-batch loss:**
-To get a clean evaluation metric each epoch, compute the full-batch MAE after all minibatch updates:
-
-```python
-for epoch in range(1, epochs + 1):
-    for X_batch, y_batch in iterate_minibatches(X, y, batch_size):
-        y_pred = model.forward(X_batch)
-        error = loss_fn(y_batch, y_pred)
-        dw, db = loss_fn.grad(X_batch, error)
-        model.backward(dw, db)
-
-    y_pred_full = model.forward(X)
-    full_mae = np.mean(np.abs(loss_fn(y, y_pred_full)))
-    print(f"epoch {epoch:3d}  full MAE = {full_mae:.6f}")
-```
-
-## Related guides
-
-- [How to Train on a Real Dataset](./train-on-real-data.md) — applying minibatch GD to Housing.csv
-- [Manual Gradient Descent](./manual-gradient-descent.md) — full-batch baseline
-- [About Gradient Descent](../explanation/about-gradient-descent.md) — theory behind minibatch convergence
+!!! tip "Troubleshooting Minibatch Convergence"
+    If your loss starts wildly fluctuating or diverging to `NaN` when switching to minibatches, **lower your learning rate**. The gradient of a batch of 32 rows is much noisier than the gradient of 10,000 rows, and a high learning rate will amplify that noise, throwing the model off course.

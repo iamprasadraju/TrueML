@@ -1,123 +1,109 @@
-# helpers — Utilities
+# Helpers & Utilities
 
 **Module:** `trueml.helpers`
 
-Benchmarking and data generation utilities for experiments.
+Benchmarking, profiling, and data generation utilities to facilitate machine learning experiments and performance testing.
 
 ---
 
-## timeit
+## `timeit`
 
 ```python
-trueml.helpers.timeit(func: callable) -> callable
+@trueml.helpers.timeit
+def func(*args, **kwargs)
 ```
 
-Decorator that times function execution. The number of iterations is controlled by the `I` environment variable.
-
-**Parameters:**
+A decorator that measures and prints the execution time of a function. The number of execution iterations is dynamically controlled by the `I` environment variable.
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `func` | `callable` | — | Function to time |
+| `func` | `callable` | — | The function to be timed. |
 
-**Environment variable:** `I` — number of iterations (default `10`). Set to `-1` for infinite looping.
-
-**Behavior:**
-
-- `I` >= 1: runs `func` that many times, prints each execution time.
-- `I == -1`: runs `func` indefinitely, printing execution time each iteration.
+**Environment Variable `I`:**
+- `I >= 1` (default 10): Runs the function `I` times sequentially, printing the execution time (in seconds) for each run.
+- `I = -1`: Runs the function in an infinite loop, continuously printing the execution time alongside the function's name.
 
 **Example:**
-
 ```python
 import os
-os.environ["I"] = "5"
-
-from trueml.gemm import matmul
-from trueml.helpers import timeit
 import numpy as np
+from trueml.helpers import timeit
+from trueml.linalg import matmul
+
+os.environ["I"] = "3"
 
 @timeit
-def bench():
-    A = np.random.randn(100, 100)
-    B = np.random.randn(100, 100)
+def benchmark():
+    A = np.random.randn(50, 50)
+    B = np.random.randn(50, 50)
     matmul(A, B)
 
-bench()
+benchmark()
+# 0.0412
+# 0.0401
+# 0.0405
 ```
 
 ---
 
-## generate
+## `memprofile`
+
+```python
+@trueml.helpers.memprofile
+def func(*args, **kwargs)
+```
+
+A decorator that profiles the memory allocations of a function using Python's built-in `tracemalloc` library.
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `func` | `callable` | — | The function to be memory-profiled. |
+
+**Output:**
+Prints the top 10 memory-allocating lines of code executed during the function call.
+
+**Example:**
+```python
+from trueml.helpers import memprofile
+import numpy as np
+
+@memprofile
+def allocate():
+    X = np.zeros((10000, 10000))
+    return X
+
+allocate()
+# <tracemalloc statistics output>
+```
+
+---
+
+## `generate`
 
 ```python
 trueml.helpers.generate(lower: int = 1, upper: int = 100, size: tuple = (1, 1)) -> np.ndarray
 ```
 
-Generates a random integer matrix.
-
-**Parameters:**
+Generates a random integer matrix drawn from a discrete uniform distribution.
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `lower` | `int` | `1` | Minimum value (inclusive) |
-| `upper` | `int` | `100` | Maximum value (exclusive) |
-| `size` | `tuple` | `(1, 1)` | Shape of the output array |
+| `lower` | `int` | `1` | The inclusive lower bound of the generated integers. |
+| `upper` | `int` | `100` | The exclusive upper bound of the generated integers. |
+| `size` | `tuple` | `(1, 1)` | The shape of the output matrix. |
 
-**Returns:** `np.ndarray` of shape `size` with random integers in `[lower, upper)`.
+**Returns:** 
+A NumPy array of the specified `size` populated with random integers.
 
 **Example:**
-
 ```python
 from trueml.helpers import generate
 
-X = generate(lower=0, upper=10, size=(3, 4))
-# X.shape == (3, 4), values in [0, 10)
+X = generate(lower=0, upper=5, size=(2, 3))
+print(X)
+# [[1, 4, 0],
+#  [2, 2, 3]]
 ```
 
----
-
-## memprofile
-
-```python
-trueml.helpers.memprofile(func: callable) -> callable
-```
-
-Decorator that profiles memory allocations of a function using `tracemalloc`.
-
-**Parameters:**
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `func` | `callable` | — | Function to profile |
-
-**Output:** Prints the top 10 memory-allocating lines after execution.
-
-**Requires:** Python's `tracemalloc` module (standard library).
-
-**Example:**
-
-```python
-from trueml.helpers import memprofile
-from trueml.gemm import matmul
-import numpy as np
-
-@memprofile
-def bench():
-    A = np.random.randn(500, 500)
-    B = np.random.randn(500, 500)
-    matmul(A, B)
-
-bench()
-```
-
----
-
-## Notes
-
-- `timeit` and `memprofile` are decorators. When applied, the wrapped function no longer returns a value (prints timing/profiling output instead).
-- For comparing `matmul` vs `npmatmul` performance, apply `timeit` to both and compare the printed timings.
-
-## Related references
-
-- [gemm](./gemm.md) — the matrix operations these utilities benchmark
+## See Also
+- [linalg](linalg.md) — Mathematical primitives that can be benchmarked using these tools.

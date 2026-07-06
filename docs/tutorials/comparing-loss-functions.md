@@ -1,174 +1,105 @@
-# Comparing Loss Functions
+# Tutorial: Comparing Loss Functions
 
-In this tutorial, you will train the same linear model with two different loss functions — `AbsoluteError` (L1) and `SquaredError` (L2) — and observe how the choice of loss changes the gradient behavior and convergence dynamics.
+In the previous tutorial, you trained a model using Mean Squared Error (`MSEloss`). In this tutorial, we will explore how changing the loss function fundamentally alters the behavior of the training process, specifically in the presence of outliers.
 
-## What you'll build
+We will compare `MSEloss` (L2 loss) and `MAEloss` (L1 loss).
 
-A side-by-side experiment that trains two identical `LinearRegression` models on the same data, one with L1 loss and one with L2 loss. You will compare their gradient magnitudes, convergence speeds, and final parameter values.
+## What You Will Learn
+- How to swap loss functions in a TrueML training loop.
+- The concept of gradient magnitude scaling.
+- Why MSE is sensitive to outliers and MAE is robust to them.
 
-## Before you start
+---
 
-- Completed [Your First Training Loop](./your-first-training-loop.md) or are comfortable with the four-step pipeline
-- `numpy` and `trueml` installed
+## The Outlier Problem
 
-## Step 1: Set up the experiment
+Let's generate a synthetic dataset representing house sizes (features) versus house prices (targets). To make things interesting, we will inject a massive outlier: a data entry error where a small house is priced at an astronomically high value.
 
 ```python
 import numpy as np
+import matplotlib.pyplot as plt
+
+np.random.seed(42)
+
+# Normal data: 50 houses
+X = np.random.uniform(1, 5, (50, 1))
+# True price: $100k + $50k per unit size
+y = 1.0 + 0.5 * X + np.random.randn(50, 1) * 0.1
+
+# Inject a massive outlier (e.g. data entry error)
+X = np.append(X, [[2.0]], axis=0)
+y = np.append(y, [[10.0]], axis=0) # Should be ~2.0, but recorded as 10.0
+
+plt.scatter(X[:-1], y[:-1], label="Normal Data")
+plt.scatter(X[-1], y[-1], color='red', label="Outlier")
+plt.legend()
+plt.show()
+```
+
+## Training with MSE (L2 Loss)
+
+First, let's train a model using `MSEloss`. Because MSE squares the errors, an error of `8.0` (from our outlier) becomes a squared penalty of `64.0`. The gradient scales linearly with the error, meaning the outlier will exert a massive pull on the model's parameters.
+
+```python
 from trueml.linearmodel import LinearRegression
-from trueml.lossfunc import AbsoluteError, SquaredError
+from trueml.losses import MSEloss
+
+model_mse = LinearRegression(n_features=1, lr=0.05)
+mse = MSEloss()
+
+for epoch in range(100):
+    y_pred = model_mse.forward(X)
+    
+    # The gradient is (2/n) * (y_pred - y)
+    # The outlier will have a massive gradient value
+    dloss = mse.grad(y, y_pred)
+    
+    dw, db = model_mse.grad(X, dloss)
+    model_mse.backward(dw, db)
+
+print(f"MSE Model Weights: {model_mse.weights[0]:.3f}")
+print(f"MSE Model Bias:    {model_mse.bias:.3f}")
 ```
 
-We will generate data with a known relationship and an outlier. The outlier will reveal how each loss function responds to anomalous observations.
+If you plot this line, you will see it gets pulled significantly upwards by the red dot, ruining the fit for the rest of the normal data.
+
+## Training with MAE (L1 Loss)
+
+Now, let's use Mean Absolute Error (`MAEloss`). The absolute error of the outlier is `8.0`, but the *gradient* of MAE is the `sign()` of the error, which is just `1.0` or `-1.0`. The outlier exerts exactly the same amount of pull on the model as a data point that is only off by `0.1`.
 
 ```python
-rng = np.random.default_rng(42)
+from trueml.losses import MAEloss
 
-n = 50
-d = 1
+# We often use a slightly different learning rate for MAE 
+# since the gradient magnitude is constant (+1 or -1)
+model_mae = LinearRegression(n_features=1, lr=0.05)
+mae = MAEloss()
 
-true_w = np.array([1.5])
-true_b = 0.0
+for epoch in range(300):
+    y_pred = model_mae.forward(X)
+    
+    # The gradient is sign(y_pred - y)
+    # The outlier's gradient is just +1 or -1, same as everything else!
+    dloss = mae.grad(y, y_pred)
+    
+    dw, db = model_mae.grad(X, dloss)
+    model_mae.backward(dw, db)
 
-X = rng.normal(size=(n, d))
-y = X @ true_w + true_b + rng.normal(scale=0.2, size=n)
-
-# Add an outlier
-X = np.vstack([X, [5.0]])
-y = np.append(y, [2.0])
+print(f"MAE Model Weights: {model_mae.weights[0]:.3f}")
+print(f"MAE Model Bias:    {model_mae.bias:.3f}")
 ```
 
-The outlier is the point `(x=5.0, y=2.0)` — far from the linear trend the rest of the data follows.
+The MAE model effectively ignores the magnitude of the outlier and fits the bulk of the data accurately.
 
-Let's see how many observations we have:
+!!! tip "Visualizing the Difference"
+    TrueML provides `plot_metrics` to compare these loops visually. Try tracking the weights over time for both models. The MSE weights will jump dramatically in the first few epochs due to the outlier, while the MAE weights will walk steadily toward the true median.
 
-```python
-print(f"n = {len(y)}, d = {X.shape[1]}")
-```
+## Why use MSE at all?
 
-```
-n = 51, d = 1
-```
+If MAE is so robust, why is MSE the default in machine learning?
+Because MAE's constant gradient magnitude means the model never slows down as it approaches the target; it bounces around the minimum (oscillation). MSE's gradient naturally shrinks as the error shrinks, allowing the model to smoothly settle into the exact minimum.
 
-## Step 2: Create two identical models
+## Next Steps
 
-```python
-model_l1 = LinearRegression(n_features=d, lr=0.01)
-model_l2 = LinearRegression(n_features=d, lr=0.01)
-
-loss_l1 = AbsoluteError()
-loss_l2 = SquaredError()
-```
-
-Both models start with the same random seed behavior (independent initialization but same distribution). Their initial weights will differ slightly, but both are near zero.
-
-## Step 3: Train both models side by side
-
-We will track the MAE (using L1 as the evaluation metric) and the gradient magnitude at each epoch:
-
-```python
-epochs = 300
-
-history_l1 = {"mae": [], "grad_mag": []}
-history_l2 = {"mae": [], "grad_mag": []}
-
-for epoch in range(1, epochs + 1):
-    # ── L1 model ────────────────────────────────────────
-    y_pred_l1 = model_l1.forward(X)
-    error_l1 = loss_l1(y, y_pred_l1)
-    dw_l1, db_l1 = loss_l1.grad(X, error_l1)
-    model_l1.backward(dw_l1, db_l1)
-
-    history_l1["mae"].append(np.mean(np.abs(error_l1)))
-    history_l1["grad_mag"].append(np.linalg.norm(dw_l1))
-
-    # ── L2 model ────────────────────────────────────────
-    y_pred_l2 = model_l2.forward(X)
-    error_l2 = loss_l2(y, y_pred_l2)
-    dw_l2, db_l2 = loss_l2.grad(X, error_l2)
-    model_l2.backward(dw_l2, db_l2)
-
-    history_l2["mae"].append(np.mean(np.abs(error_l1)))  # evaluate both with L1
-    history_l2["grad_mag"].append(np.linalg.norm(dw_l2))
-```
-
-Notice that we evaluate both models using L1 loss for a fair comparison, even though `model_l2` was trained with L2 loss.
-
-## Step 4: Compare convergence
-
-Let's check the final MAE for each model:
-
-```python
-print(f"Final MAE (L1-trained): {history_l1['mae'][-1]:.6f}")
-print(f"Final MAE (L2-trained): {history_l2['mae'][-1]:.6f}")
-```
-
-```
-Final MAE (L1-trained): 0.126852
-Final MAE (L2-trained): 0.200734
-```
-
-The L1-trained model generalizes better — the outlier influences it less. The L2 model is pulled toward the outlier because squared error penalizes large residuals quadratically.
-
-## Step 5: Compare gradient magnitudes
-
-Now let's see what happened inside the training. The gradient magnitude tells us how aggressively each model updated its parameters:
-
-```python
-print("L1 gradient magnitude, first 5 epochs:", [f"{g:.6f}" for g in history_l1['grad_mag'][:5]])
-print("L2 gradient magnitude, first 5 epochs:", [f"{g:.6f}" for g in history_l2['grad_mag'][:5]])
-```
-
-```
-L1 gradient magnitude, first 5 epochs: ['0.009246', '0.013738', '0.014797', '0.014060', '0.012355']
-L2 gradient magnitude, first 5 epochs: ['0.710178', '0.289506', '0.216307', '0.155383', '0.113383']
-```
-
-Notice the difference in scale:
-
-- **L1 gradient**: The magnitude is small and stable (~0.01) throughout. This is because each observation contributes at most $\pm 1$ to the gradient of $\partial L / \partial \hat{y}$, regardless of how wrong the prediction is.
-- **L2 gradient**: The magnitude starts large (~0.71) and decreases as the error shrinks. This is because $\partial L / \partial \hat{y} = -2(y - \hat{y})$ — the gradient is proportional to the error itself.
-
-Let's check the later epochs to see the pattern more clearly:
-
-```python
-print("L1 grad mag, epochs 50-55:", [f"{g:.6f}" for g in history_l1['grad_mag'][50:55]])
-print("L2 grad mag, epochs 50-55:", [f"{g:.6f}" for g in history_l2['grad_mag'][50:55]])
-```
-
-```
-L1 grad mag, epochs 50-55: ['0.030803', '0.030821', '0.030839', '0.030857', '0.030874']
-L2 grad mag, epochs 50-55: ['0.129834', '0.129164', '0.128499', '0.127838', '0.127182']
-```
-
-The L1 gradient magnitude remains nearly constant — it oscillates around the same value. The L2 gradient continues to shrink as the model improves.
-
-## Step 6: Compare learned parameters
-
-```python
-print("L1 model: w =", model_l1.weights[0], "b =", model_l1.bias)
-print("L2 model: w =", model_l2.weights[0], "b =", model_l2.bias)
-print("True w = 1.5, b = 0.0")
-```
-
-```
-L1 model: w = 1.3874 b = -0.0136
-L2 model: w = 0.8775 b = 0.2764
-```
-
-The L1 model recovered parameters much closer to the ground truth. The L2 model was pulled toward the outlier at `x=5.0, y=2.0`, producing a biased slope and intercept.
-
-## What you've learned
-
-You have compared two loss functions on the same task and observed:
-
-- **L1 (AbsoluteError)** : Gradient magnitude is bounded at $\pm 1$ per observation. This makes it robust to outliers but produces a constant-magnitude gradient that does not shrink near the optimum.
-- **L2 (SquaredError)** : Gradient magnitude is proportional to the error. This makes it converge faster initially (large steps when far from the solution) but highly sensitive to outliers.
-- **Practical implication**: L1 is preferred when your data contains outliers; L2 is preferred when all observations are equally reliable and you want fast convergence.
-
-## Next steps
-
-- **Dive deeper**: Read [About Loss Functions](../explanation/about-loss-functions.md) for a conceptual discussion of the L1/L2 tradeoff.
-- **Train on real data**: Follow [How to Train on Real Data](../how-to/train-on-real-data.md) to apply these loss functions to a real dataset.
-- **Reference**: See the [AbsoluteError](../reference/absolute-error.md) and [SquaredError](../reference/squared-error.md) reference pages for the mathematical contracts.
-- **Understand gradients**: Read [About Gradient Descent](../explanation/about-gradient-descent.md) for the theory behind the update rule.
+- Check the [MAEloss Reference](../reference/mae-loss.md) and [MSEloss Reference](../reference/mse-loss.md) to see the exact mathematical implementation of these gradients.
+- Read the deep dive [About Loss Functions](../explanation/about-loss-functions.md) for the statistical theory (Gaussian vs Laplacian distributions) behind this behavior.

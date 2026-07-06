@@ -1,112 +1,96 @@
-# Recipe: Manual Gradient Descent
+# How-to: Manual Gradient Descent
 
-**Objective:** Train a `LinearRegression` model on synthetic data using `AbsoluteError` loss, with every gradient descent step written explicitly.
+While TrueML provides a `.backward(dw, db)` method to update weights, you might occasionally want to intercept the gradients and apply the update manually. This is useful for implementing custom optimizers (like Momentum or Adam), applying weight decay (L2 regularization), or simply for educational purposes to prove that there is no magic happening inside the `LinearRegression` class.
 
-**Prerequisites:** `trueml`, `numpy`
+This guide walks you through bypassing the `.backward()` method and updating the parameters yourself.
+
+## When to use this guide
+- You want to implement a custom optimizer.
+- You want to apply manual weight constraints (e.g., non-negative weights).
+- You are debugging an exploding gradient and want to apply gradient clipping manually.
 
 ---
 
-## Protocol
+## The Standard Loop
 
-### 1. Generate Synthetic Data
+Normally, a TrueML training loop looks like this:
 
 ```python
-import numpy as np
 from trueml.linearmodel import LinearRegression
-from trueml.lossfunc import AbsoluteError
+from trueml.losses import MSEloss
+import numpy as np
 
-n = 200               # number of observations
-d = 3                 # number of features
-true_w = np.array([2.0, -1.5, 0.8])
-true_b = 0.5
+X = np.random.randn(10, 2)
+y = np.random.randn(10)
 
-rng = np.random.default_rng(42)
-X = rng.normal(size=(n, d))
-y = X @ true_w + true_b + rng.normal(scale=0.2, size=n)   # y = X w + b + noise
+model = LinearRegression(n_features=2, lr=0.01)
+loss_fn = MSEloss()
+
+# Standard Forward, Grad, Backward
+y_pred = model.forward(X)
+dloss = loss_fn.grad(y, y_pred)
+dw, db = model.grad(X, dloss)
+
+model.backward(dw, db)  # <--- TrueML applies the update
 ```
 
-### 2. Initialize Model and Loss
+## The Manual Loop
+
+To apply the update manually, we simply take the gradients returned by `model.grad()` and apply the gradient descent formula ourselves:
+$$w \gets w - \eta \cdot dw$$
 
 ```python
-model = LinearRegression(n_features=d, lr=0.01)
-loss_fn = AbsoluteError()
-```
+# Initialize as usual
+model = LinearRegression(n_features=2, lr=0.01)
 
-### 3. Training Loop
+# Define your learning rate locally
+learning_rate = 0.01
 
-```python
-epochs = 1000
-report_interval = 100
-
-for epoch in range(1, epochs + 1):
-    # ── Forward ──────────────────────────────────────────────
-    #   ŷ = X w + b
+for epoch in range(100):
+    # 1 & 2: Forward and Loss Gradient (Unchanged)
     y_pred = model.forward(X)
-
-    # ── Loss ─────────────────────────────────────────────────
-    #   L_i = |y_i – ŷ_i|
-    error = loss_fn(y, y_pred)
-
-    # ── Gradient ─────────────────────────────────────────────
-    #   ∂L/∂ŷ_i = –sign(y_i – ŷ_i)
-    #   ∂L/∂w   = (1/n) X^T · ∂L/∂ŷ
-    #   ∂L/∂b   = mean(∂L/∂ŷ)
-    dw, db = loss_fn.grad(X, error)
-
-    # ── Update ───────────────────────────────────────────────
-    #   w ← w – η · ∂L/∂w
-    #   b ← b – η · ∂L/∂b
-    model.backward(dw, db)
-
-    if epoch % report_interval == 0:
-        mae = np.mean(np.abs(error))
-        print(f"epoch {epoch:4d}  MAE = {mae:.6f}  "
-              f"w ≈ {model.weights}  b ≈ {model.bias:.4f}")
+    dloss = loss_fn.grad(y, y_pred)
+    
+    # 3: Extract parameter gradients
+    dw, db = model.grad(X, dloss)
+    
+    # ----------------------------------------------------
+    # 4: MANUAL UPDATE
+    # Do not call model.backward()
+    # Modify the model's state directly!
+    # ----------------------------------------------------
+    
+    model.weights = model.weights - (learning_rate * dw)
+    model.bias = model.bias - (learning_rate * db)
 ```
 
-### 4. Expected Output
-
-```
-epoch  100  MAE = 0.174504  w ≈ [1.890 -1.379  0.712]  b ≈ 0.4672
-epoch  200  MAE = 0.167755  w ≈ [1.950 -1.450  0.761]  b ≈ 0.4879
-epoch  300  MAE = 0.165934  w ≈ [1.978 -1.480  0.782]  b ≈ 0.4958
-epoch  400  MAE = 0.165177  w ≈ [1.991 -1.496  0.792]  b ≈ 0.4979
-epoch  500  MAE = 0.164865  w ≈ [1.997 -1.502  0.796]  b ≈ 0.4971
-...
-epoch 1000  MAE = 0.164647  w ≈ [2.001 -1.501  0.800]  b ≈ 0.4998
-```
-
-Recovered weights approach $[2.0, -1.5, 0.8]$ and bias approaches $0.5$.
+!!! note "Accessing State"
+    Because TrueML embraces transparency, `model.weights` and `model.bias` are standard public NumPy arrays. You are explicitly encouraged to read and write them.
 
 ---
 
-## Variations
+## Example: Adding Weight Decay (L2 Regularization)
 
-### Switch to SquaredError
+By applying the update manually, we can easily add custom logic. For instance, L2 regularization penalizes large weights by decaying them slightly towards zero on every step.
 
-Replace `AbsoluteError` with `SquaredError` to observe how the gradient changes:
-
-```python
-from trueml.lossfunc import SquaredError
-loss_fn = SquaredError()
-```
-
-With SquaredError, the MAE will converge faster in early epochs (larger initial gradient) but may overshoot if the learning rate is too high.
-
-### Batch Gradient Descent
-
-For batch processing, simply slice $X$ and $y$:
+$$w \gets w - \eta \cdot dw - \eta \cdot \lambda \cdot w$$
 
 ```python
-batch_size = 32
-for epoch in range(epochs):
-    for i in range(0, n, batch_size):
-        X_batch = X[i:i+batch_size]
-        y_batch = y[i:i+batch_size]
-        y_pred = model.forward(X_batch)
-        error = loss_fn(y_batch, y_pred)
-        dw, db = loss_fn.grad(X_batch, error)
-        model.backward(dw, db)
+lambda_l2 = 0.005  # Regularization strength
+learning_rate = 0.01
+
+for epoch in range(100):
+    y_pred = model.forward(X)
+    dloss = loss_fn.grad(y, y_pred)
+    dw, db = model.grad(X, dloss)
+    
+    # Manual update with L2 Weight Decay
+    model.weights = model.weights - (learning_rate * dw) - (learning_rate * lambda_l2 * model.weights)
+    
+    # Bias is typically not regularized
+    model.bias = model.bias - (learning_rate * db)
 ```
 
-No state needs resetting — the model is stateless.
+## Summary
+
+TrueML's stateless design means the model class is just a container for `weights`, `bias`, and the math required to compute forward passes and Jacobians. The optimization step is completely decoupled. If `model.backward()` doesn't do what you need, you simply don't call it.

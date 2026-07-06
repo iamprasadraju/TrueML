@@ -1,165 +1,101 @@
-# How to Train on a Real Dataset
+# How-to: Train on Real Data
 
-This guide shows you how to load the Housing.csv dataset, prepare it for a linear model, and train a `LinearRegression` model using gradient descent.
+Training on synthetic data (like `np.random.randn`) is easy because the features are naturally scaled and centered. When applying TrueML to real-world datasets, features often have wildly different scales (e.g., age in years vs. income in dollars). 
+
+This guide demonstrates how to load a real dataset, properly standardize the features, train a TrueML model, and interpret the learned parameters.
 
 ## When to use this guide
+- You are transitioning from synthetic data to CSVs.
+- Your model is diverging (loss going to `NaN`) and you don't know why.
+- You need to rescale learned weights back to original units for interpretation.
 
-Use this when you have a real-world tabular dataset and want to train a linear model with TrueML. This guide covers data loading, feature selection, normalization, and the training loop.
+---
 
-## Before you start
+## 1. Loading and Standardizing Data
 
-- Completed [Your First Training Loop](../tutorials/your-first-training-loop.md) or are familiar with the four-step pipeline
-- The `datasets/Housing.csv` file exists in your TrueML installation
+Gradient descent is highly sensitive to the scale of the input features. If feature $x_1$ ranges from $0-1$ and feature $x_2$ ranges from $1000-50000$, the gradient for $x_2$ will dominate the update step, causing oscillation or divergence.
 
-## Context
-
-Real data differs from synthetic data in important ways:
-- Features have different scales (area ranges in thousands, bedrooms in single digits)
-- Data may contain outliers
-- The relationship between features and target is unknown
-
-Proper preprocessing — especially feature standardization — is essential for gradient descent to converge efficiently.
-
-## Steps
-
-### 1. Load and inspect the data
+Always standardize features to have mean $= 0$ and standard deviation $= 1$.
 
 ```python
 import numpy as np
 import pandas as pd
 from trueml.linearmodel import LinearRegression
-from trueml.lossfunc import AbsoluteError
+from trueml.losses import MSEloss
 
-data = pd.read_csv("datasets/Housing.csv")
-print(data.head())
-print(data.dtypes)
+# 1. Load data
+# Assume housing.csv has columns: 'SquareFeet', 'Bedrooms', 'Age', and 'Price'
+df = pd.read_csv("datasets/housing.csv")
+
+X_raw = df[['SquareFeet', 'Bedrooms', 'Age']].values
+y_raw = df['Price'].values
+
+# 2. Standardize Features (Z-score normalization)
+X_mean = np.mean(X_raw, axis=0)
+X_std = np.std(X_raw, axis=0)
+
+X_scaled = (X_raw - X_mean) / X_std
+
+# Standardizing targets is optional but helps with learning rate stability
+y_mean = np.mean(y_raw)
+y_std = np.std(y_raw)
+
+y_scaled = (y_raw - y_mean) / y_std
 ```
 
-The dataset has 545 rows with a mix of numerical and categorical columns. For this guide we will use four numerical features:
+!!! warning "Keep the Scaling Factors"
+    You must save `X_mean`, `X_std`, `y_mean`, and `y_std`. You will need them to make predictions on new data, and to interpret the weights later!
 
-```
-price         int64
-area          int64
-bedrooms      int64
-bathrooms     int64
-stories       int64
-mainroad     object
-...
-```
+---
 
-### 2. Select features and target
+## 2. The Training Loop
+
+Now we apply the standard TrueML training loop on the scaled data.
 
 ```python
-feature_cols = ["area", "bedrooms", "bathrooms", "stories"]
-target_col = "price"
+model = LinearRegression(n_features=3, lr=0.1)
+loss_fn = MSEloss()
 
-X = data[feature_cols].values.astype(float)
-y = data[target_col].values.astype(float)
-```
-
-### 3. Standardize the features
-
-Gradient descent is sensitive to feature scale. If one feature has values in the thousands (area) and another has values in single digits (bedrooms), the gradient will be dominated by the larger-scale feature.
-
-```python
-X_mean = X.mean(axis=0)
-X_std = X.std(axis=0)
-X = (X - X_mean) / X_std
-
-y_mean = y.mean()
-y_std = y.std()
-y = (y - y_mean) / y_std
-```
-
-Standardization centers each feature at zero mean and unit variance. This ensures each feature contributes proportionally to the gradient.
-
-### 4. Initialize the model
-
-```python
-n, d = X.shape
-model = LinearRegression(n_features=d, lr=0.1)
-loss_fn = AbsoluteError()
-```
-
-The learning rate is higher (0.1) than the default (0.01) because the standardized features have consistent scale, allowing larger steps without divergence.
-
-### 5. Train the model
-
-```python
-epochs = 200
-report_interval = 20
-
-for epoch in range(1, epochs + 1):
-    y_pred = model.forward(X)
-    error = loss_fn(y, y_pred)
-    dw, db = loss_fn.grad(X, error)
+for epoch in range(1, 201):
+    y_pred = model.forward(X_scaled)
+    
+    loss = loss_fn(y_scaled, y_pred)
+    dloss = loss_fn.grad(y_scaled, y_pred)
+    
+    dw, db = model.grad(X_scaled, dloss)
     model.backward(dw, db)
-
-    if epoch % report_interval == 0:
-        mae = np.mean(np.abs(error)) * y_std
-        print(f"epoch {epoch:4d}  MAE = ₹{mae:.0f}")
+    
+    if epoch % 50 == 0:
+        print(f"Epoch {epoch:3d} | Scaled MSE: {loss:.4f}")
 ```
 
-Output (approximate):
+---
 
-```
-epoch   20  MAE = ₹1315283
-epoch   40  MAE = ₹1248652
-epoch   60  MAE = ₹1225190
-epoch   80  MAE = ₹1212996
-epoch  100  MAE = ₹1206361
-epoch  120  MAE = ₹1202915
-epoch  140  MAE = ₹1201085
-epoch  160  MAE = ₹1200080
-epoch  180  MAE = ₹1199507
-epoch  200  MAE = ₹1199145
-```
+## 3. Rescaling for Interpretation
 
-The MAE is reported in the original price scale (rupees) by multiplying the normalized error by `y_std`.
+The weights stored in `model.weights` correspond to the *scaled* data. A weight of `0.5` for 'Bedrooms' means "A 1 standard deviation increase in Bedrooms results in a 0.5 standard deviation increase in Price."
 
-### 6. Evaluate the learned parameters
+To convert the weights back to original units (e.g., "Dollars per Square Foot"), apply the inverse transformation:
+
+$$ w_{original} = w_{scaled} \times \left( \frac{\sigma_y}{\sigma_x} \right) $$
+
+$$ b_{original} = (b_{scaled} \times \sigma_y + \mu_y) - \sum (w_{original} \times \mu_x) $$
 
 ```python
-# Rescale weights to original units
-w_rescaled = model.weights / X_std * y_std
-b_rescaled = model.bias * y_std + y_mean - (X_mean / X_std * y_std) @ model.weights
+# Rescale weights
+w_scaled = model.weights
+w_original = w_scaled * (y_std / X_std)
 
-print("Feature coefficients:")
-for col, coef in zip(feature_cols, w_rescaled):
-    print(f"  {col}: ₹{coef:.0f} per unit")
-print(f"Intercept: ₹{b_rescaled:.0f}")
+# Rescale bias
+b_scaled = model.bias
+b_original = (b_scaled * y_std + y_mean) - np.sum(w_original * X_mean)
+
+print("Original Units:")
+print(f"Base Price (Bias): ${b_original:,.2f}")
+print(f"Per Square Foot:   ${w_original[0]:,.2f}")
+print(f"Per Bedroom:       ${w_original[1]:,.2f}")
+print(f"Per Year of Age:   ${w_original[2]:,.2f}")
 ```
 
-Example output:
-
-```
-Feature coefficients:
-  area: ₹840 per unit
-  bedrooms: ₹175000 per unit
-  bathrooms: ₹550000 per unit
-  stories: ₹530000 per unit
-Intercept: ₹-320000
-```
-
-## Troubleshooting
-
-**Problem: Loss diverges (MAE increases instead of decreasing)**
-Solution: Your learning rate is too high. Reduce `lr` (try 0.01 or 0.001) and retrain.
-
-**Problem: Loss converges very slowly**
-Solution: Your learning rate is too low, or features are not standardized. Check that `X` has zero mean and unit variance.
-
-## Variations
-
-**Using SquaredError instead of AbsoluteError:**
-Replace `AbsoluteError()` with `SquaredError()` and reduce the learning rate to 0.01. SquaredError produces larger gradients for large errors, so it requires a smaller step size.
-
-**Training on all features including categorical:**
-Convert categorical columns (mainroad, guestroom, etc.) to 0/1 indicators using `pd.get_dummies(data)`, then standardize and train.
-
-## Related guides
-
-- [How to Implement Minibatch Gradient Descent](./implement-minibatch-gd.md)
-- [Manual Gradient Descent](./manual-gradient-descent.md)
-- [AbsoluteError Reference](../reference/absolute-error.md)
-- [About Gradient Descent](../explanation/about-gradient-descent.md)
+## Summary
+Real data requires preprocessing. Because TrueML lacks hidden `.fit()` heuristics, it will not automatically scale data or adjust learning rates for you. You must explicitly control the data statistics entering the model.
