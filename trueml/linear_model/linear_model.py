@@ -1,20 +1,24 @@
 import numpy as np
 
 
-class LogisticRegression:
-    """Logistic Regression model trained using explicit gradient descent.
+class LinearModel:
+    """Linear model base class.
 
-    The model predicts probabilities using:
-        p = sigmoid(Xw + b)
+    This class provides the core functionality for linear models, including
+    parameter initialization, forward pass, gradient computation, and parameter
+    updates. It is designed to be subclassed by specific linear models (e.g.,
+    LinearRegression, LogisticRegression).
 
-    where:
-        X is the input feature matrix,
-        w is the weight vector,
-        b is the bias term.
 
-    TrueML exposes the forward pass, gradient computation, and parameter
-    updates as separate, stateless operations to make the learning pipeline
-    entirely transparent.
+    Example
+    -------
+    >>> from trueml.linearmodel import LinearRegression
+    >>> model = LinearRegression(n_features=2)
+    >>> y_pred = model.forward(X)
+    >>> loss = loss_fn(y, y_pred)
+    >>> dloss = loss_fn.grad(y, y_pred)
+    >>> dw, db = model.grad(X, dloss)
+    >>> model.backward(dw, db)
     """
 
     def __init__(self, n_features: int, lr: float = 0.01) -> None:
@@ -32,7 +36,7 @@ class LogisticRegression:
         self.bias = 0.0
 
     def forward(self, X: np.ndarray) -> np.ndarray:
-        """Compute predicted probabilities for the given input data.
+        """Compute predictions for the given input data.
 
         Parameters
         ----------
@@ -42,10 +46,9 @@ class LogisticRegression:
         Returns
         -------
         np.ndarray of shape (n_samples,)
-            Predicted probabilities.
+            Predicted values.
         """
-        z = X @ self.weights + self.bias
-        return 1 / (1 + np.exp(-z))
+        return X @ self.weights + self.bias
 
     def grad(
         self, X: np.ndarray, loss_gradient: np.ndarray
@@ -57,17 +60,20 @@ class LogisticRegression:
         X : np.ndarray of shape (n_samples, n_features)
             Input feature matrix used during the forward pass.
         loss_gradient : np.ndarray of shape (n_samples,)
-            Gradient of the loss with respect to predictions.
+            Gradient of the loss with respect to predictions (dL/dy_pred).
 
         Returns
         -------
         tuple[np.ndarray, float]
             A tuple (dw, db) where:
-            - dw is the gradient with respect to the weights.
-            - db is the gradient with respect to the bias.
+            - dw is the gradient with respect to the weights (shape: n_features).
+            - db is the gradient with respect to the bias (scalar).
+
         """
+
         dw = X.T @ loss_gradient
         db = np.sum(loss_gradient)
+
         return dw, db
 
     def backward(self, dw: np.ndarray, db: float) -> None:
