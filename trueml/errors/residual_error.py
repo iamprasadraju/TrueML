@@ -1,4 +1,6 @@
-def residual_error(y_true, y_pred):
+from numpy.typing import ArrayLike
+
+def residual_error(y_true: ArrayLike, y_pred: ArrayLike) -> ArrayLike:
     """
     Compute the residual error between actual and predicted values.
 

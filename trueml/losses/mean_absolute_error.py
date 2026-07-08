@@ -1,6 +1,7 @@
 import numpy as np
+from numpy.typing import ArrayLike
 
-from trueml.errors import absolute_error
+from ..errors import absolute_error
 
 
 class MAEloss:
@@ -22,18 +23,18 @@ class MAEloss:
     """
 
     @staticmethod
-    def surface(y_true, y_pred):
+    def surface(y_true: ArrayLike, y_pred: ArrayLike):
         return absolute_error(y_true, y_pred)
 
-    def __call__(self, y_true, y_pred):
+    def __call__(self, y_true: ArrayLike, y_pred: ArrayLike):
         return np.mean(absolute_error(y_true, y_pred))
 
-    def grad(self, y_true, y_pred):
+    def grad(self, y_true: ArrayLike, y_pred: ArrayLike) -> ArrayLike:
         """
         Compute gradient of MAE w.r.t predictions (dL/dy_pred).
 
         Returns:
-            array-like
+            ArrayLike
                 Gradient of MAE with respect to predictions.
 
         Note:

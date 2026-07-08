@@ -1,6 +1,7 @@
 import numpy as np
+from numpy.typing import ArrayLike
 
-from trueml.errors import residual_error
+from ..errors import residual_error
 
 
 class MSEloss:
@@ -21,18 +22,18 @@ class MSEloss:
     """
 
     @staticmethod
-    def surface(y_true, y_pred):
+    def surface(y_true: ArrayLike, y_pred: ArrayLike):
         return residual_error(y_true, y_pred) ** 2
 
-    def __call__(self, y_true, y_pred):
+    def __call__(self, y_true: ArrayLike, y_pred: ArrayLike):
         return np.mean(residual_error(y_true, y_pred) ** 2)
 
-    def grad(self, y_true, y_pred):
+    def grad(self, y_true: ArrayLike, y_pred: ArrayLike) -> ArrayLike:
         """
         Compute gradient of MSE w.r.t predictions.
 
         Returns:
-            array-like
+            ArrayLike
                 Gradient of the loss with respect to predictions (dL/dy_pred)
         """
         n = y_true.shape[0]

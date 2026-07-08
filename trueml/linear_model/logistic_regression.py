@@ -1,4 +1,4 @@
-import numpy as np
+from numpy.typing import ArrayLike
 
 from .linear_model import LinearModel
 from ..activations import sigmoid
@@ -21,17 +21,17 @@ class LogisticRegression(LinearModel):
     entirely transparent.
     """
 
-    def forward(self, X: np.ndarray) -> np.ndarray:
+    def forward(self, X: ArrayLike) -> ArrayLike:
         """Compute predicted probabilities for the given input data.
 
         Parameters
         ----------
-        X : np.ndarray of shape (n_samples, n_features)
+        X : ArrayLike of shape (n_samples, n_features)
             Input feature matrix.
 
         Returns
         -------
-        np.ndarray of shape (n_samples,)
+        ArrayLike of shape (n_samples,)
             Predicted probabilities for the positive class.
         """
         z = super().forward(X)
