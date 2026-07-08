@@ -11,8 +11,10 @@ training loop, keeping every mathematical operation visible.
 
 from .linear_regression import LinearRegression
 from .logistic_regression import LogisticRegression
+from .linear_model import LinearModel
 
 __all__ = [
     "LinearRegression",
     "LogisticRegression",
+    "LinearModel",
 ]
