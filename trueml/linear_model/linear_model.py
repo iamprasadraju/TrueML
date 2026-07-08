@@ -1,5 +1,5 @@
 import numpy as np
-
+from numpy.typing import ArrayLike
 
 class LinearModel:
     """Linear model base class.
@@ -35,36 +35,36 @@ class LinearModel:
         self.weights = np.random.randn(n_features) * 0.01
         self.bias = 0.0
 
-    def forward(self, X: np.ndarray) -> np.ndarray:
+    def forward(self, X: ArrayLike) -> ArrayLike:
         """Compute predictions for the given input data.
 
         Parameters
         ----------
-        X : np.ndarray of shape (n_samples, n_features)
+        X : ArrayLike of shape (n_samples, n_features)
             Input feature matrix.
 
         Returns
         -------
-        np.ndarray of shape (n_samples,)
+        ArrayLike of shape (n_samples,)
             Predicted values.
         """
         return X @ self.weights + self.bias
 
     def grad(
-        self, X: np.ndarray, loss_gradient: np.ndarray
-    ) -> tuple[np.ndarray, float]:
+        self, X: ArrayLike, loss_gradient: ArrayLike
+    ) -> tuple[ArrayLike, float]:
         """Compute gradients of model parameters using the upstream loss gradient.
 
         Parameters
         ----------
-        X : np.ndarray of shape (n_samples, n_features)
+        X : ArrayLike of shape (n_samples, n_features)
             Input feature matrix used during the forward pass.
-        loss_gradient : np.ndarray of shape (n_samples,)
+        loss_gradient : ArrayLike of shape (n_samples,)
             Gradient of the loss with respect to predictions (dL/dy_pred).
 
         Returns
         -------
-        tuple[np.ndarray, float]
+        tuple[ArrayLike, float]
             A tuple (dw, db) where:
             - dw is the gradient with respect to the weights (shape: n_features).
             - db is the gradient with respect to the bias (scalar).
@@ -76,12 +76,12 @@ class LinearModel:
 
         return dw, db
 
-    def backward(self, dw: np.ndarray, db: float) -> None:
+    def backward(self, dw: ArrayLike, db: float) -> None:
         """Update model parameters using gradient descent optimization.
 
         Parameters
         ----------
-        dw : np.ndarray
+        dw : ArrayLike
             Gradient of the loss with respect to the weights.
         db : float
             Gradient of the loss with respect to the bias.

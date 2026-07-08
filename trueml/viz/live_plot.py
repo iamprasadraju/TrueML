@@ -22,7 +22,8 @@ def plot_metrics(epochs, *args, titles=None, labels=None, **kwargs):
     metric_source = kwargs if is_keyword_mode else {f"Metric {i+1}": data for i, data in enumerate(args)}
     
     num_plots = len(metric_source)
-    if num_plots == 0: return
+    if num_plots == 0: 
+        return
     
     # 2. Initialize the subplot grid
     fig, axes = plt.subplots(1, num_plots, figsize=(4 * num_plots, 3.5))

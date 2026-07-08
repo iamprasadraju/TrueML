@@ -1,7 +1,7 @@
-from . import errors, linearmodel, losses
+from . import errors, linear_model, losses
 
 __all__ = [
-    "linearmodel",
+    "linear_model",
     "losses",
     "errors",
     "viz",
