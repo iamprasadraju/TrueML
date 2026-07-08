@@ -39,7 +39,7 @@ def plot2d(func, x_range: tuple = (-10, 10), resolution: int = 100, figsize: tup
     plt.show()
 
 
-def plot3d(func, x_range: tuple = (-10, 10), y_range: tuple = (-10, 10), resolution: int = 100, figsize: tuple =(6, 6), cmap: str ="gist_earth", title: str = None) -> None:
+def plot3d(func, x_range: tuple = (-10, 10), y_range: tuple = (-10, 10), resolution: int = 100, figsize: tuple =(6, 6), cmap: str ="viridis", title: str = None) -> None:
     """Plot a 3D function.
     
     Args:
@@ -62,7 +62,7 @@ def plot3d(func, x_range: tuple = (-10, 10), y_range: tuple = (-10, 10), resolut
     x = np.linspace(*x_range, resolution)
     y = np.linspace(*y_range, resolution)
 
-    X, Y = np.meshgrid(x, y)
+    X, Y = np.meshgrid(x, y, copy=False)
     Z = func(X, Y)
 
     plot_name = func.__qualname__.split(".")[0]
@@ -70,7 +70,7 @@ def plot3d(func, x_range: tuple = (-10, 10), y_range: tuple = (-10, 10), resolut
 
     ax = fig.add_subplot(projection='3d')
     # cmap: for color mapping of the surface (e.g., 'viridis', 'plasma', 'coolwarm', 'gist_earth')
-    ax.plot_surface(X, Y, Z, cmap=cmap)
+    ax.plot_surface(X, Y, Z, cmap=cmap, edgecolor="none", linewidth=0, antialiased=False, shade=False, rcount=40, ccount=40)
 
     if title is None:
         title = plot_name
