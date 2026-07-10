@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 from IPython.display import clear_output, display
 
-
 def history(history):
     """Plot training metrics stored in History object.
 
