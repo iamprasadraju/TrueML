@@ -1,7 +1,7 @@
 class History:
     """
     Record and store metrics during model training.
-    
+
     Example
     -------
     >>> history = History()
@@ -26,7 +26,7 @@ class History:
 
     def __getitem__(self, key: str) -> list:
         return self.history[key]
-    
+
     def keys(self) -> list:
         return self.history.keys()
 

@@ -13,12 +13,12 @@ def sigmoid(x: ArrayLike) -> ArrayLike:
     ----------
     x : ArrayLike
         Input array.
-    
+
     Returns
     -------
     ArrayLike
         Output array with sigmoid applied.
-    
+
     Examples
     --------
     >>> sigmoid([0, 1, -1])
