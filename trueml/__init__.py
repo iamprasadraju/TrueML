@@ -1,9 +1,9 @@
-from . import errors, linear_model, losses
+from . import errors, linear_model, losses, plots
 
 __all__ = [
     "linear_model",
     "losses",
     "errors",
-    "viz",
+    "plots",
     "activations",
 ]
