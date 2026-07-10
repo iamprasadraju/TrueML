@@ -1,5 +1,6 @@
 import numpy as np
 from numpy.typing import ArrayLike
+from ..history import History
 
 class LinearModel:
     """Linear model base class.
@@ -21,7 +22,7 @@ class LinearModel:
     >>> model.backward(dw, db)
     """
 
-    def __init__(self, n_features: int, lr: float = 0.01) -> None:
+    def __init__(self, n_features: int, lr: float = 0.01, history=True) -> None:
         """Initialize model parameters.
 
         Parameters
@@ -30,10 +31,13 @@ class LinearModel:
             Number of input features.
         lr : float, default=0.01
             Learning rate used during parameter updates.
+        history : bool, default=True
+            Whether to record training history.
         """
         self.lr = lr
         self.weights = np.random.randn(n_features) * 0.01
         self.bias = 0.0
+        self.history = History() if history else None
 
     def forward(self, X: ArrayLike) -> ArrayLike:
         """Compute predictions for the given input data.
