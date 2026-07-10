@@ -34,3 +34,6 @@ dev = [
     "pytest>=9.1.0",
     "ruff>=0.15.17"
 ]
+
+[tool.ruff]
+extend-exclude = ["notebooks", "benchmarks/*.ipynb"]
