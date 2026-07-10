@@ -2,6 +2,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 from ..history import History
 
+
 class LinearModel:
     """Linear model base class.
 
@@ -54,9 +55,7 @@ class LinearModel:
         """
         return X @ self.weights + self.bias
 
-    def grad(
-        self, X: ArrayLike, loss_gradient: ArrayLike
-    ) -> tuple[ArrayLike, float]:
+    def grad(self, X: ArrayLike, loss_gradient: ArrayLike) -> tuple[ArrayLike, float]:
         """Compute gradients of model parameters using the upstream loss gradient.
 
         Parameters
