@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def plot2d(func, x_range: tuple = (-10, 10), resolution: int = 100, figsize: tuple = (6, 4), title: str = None) -> None:
+def function2d(func, x_range: tuple = (-10, 10), resolution: int = 100, figsize: tuple = (6, 4), title: str = None) -> None:
     """Plot a 2D function.
     
     Args:
@@ -18,7 +18,7 @@ def plot2d(func, x_range: tuple = (-10, 10), resolution: int = 100, figsize: tup
     Example:
         >>> def f(x):
         ...     return x**2
-        >>> plot2d(f)
+        >>> function2d(f)
     """
     x = np.linspace(*x_range, resolution)
     y = func(x)
@@ -39,7 +39,7 @@ def plot2d(func, x_range: tuple = (-10, 10), resolution: int = 100, figsize: tup
     plt.show()
 
 
-def plot3d(func, x_range: tuple = (-10, 10), y_range: tuple = (-10, 10), resolution: int = 100, figsize: tuple =(6, 6), cmap: str ="viridis", title: str = None) -> None:
+def function3d(func, x_range: tuple = (-10, 10), y_range: tuple = (-10, 10), resolution: int = 100, figsize: tuple =(6, 6), cmap: str ="viridis", title: str = None) -> None:
     """Plot a 3D function.
     
     Args:
@@ -57,7 +57,7 @@ def plot3d(func, x_range: tuple = (-10, 10), y_range: tuple = (-10, 10), resolut
     Example:
         >>> def f(x, y):
         ...     return x**2 + y**2
-        >>> plot3d(f)
+        >>> function3d(f)
     """
     x = np.linspace(*x_range, resolution)
     y = np.linspace(*y_range, resolution)
