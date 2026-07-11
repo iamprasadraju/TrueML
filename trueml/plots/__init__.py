@@ -6,6 +6,8 @@ from .histogram_plot import hist
 from .line_plot import line
 from .bar_plot import bar
 from .box_plot import box
+from .heatmap_plot import heatmap
+from .contour_plot import contour
 
 __all__ = [
     "function2d",
@@ -16,4 +18,6 @@ __all__ = [
     "line",
     "bar",
     "box",
+    "heatmap",
+    "contour",
 ]
