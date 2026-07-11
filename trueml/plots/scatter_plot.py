@@ -16,27 +16,46 @@ def scatter(
     grid: bool = False,
     figsize: tuple[int, int] | None = None,
 ):
-    """Create a scatter plot.
-    
+    """
+    Create a scatter plot.
+
+    A scatter plot visualizes the relationship between two numerical variables
+    by representing each observation as a point. It is commonly used to identify
+    correlations, trends, clusters, and outliers.
+
     Args:
-        x: The x-coordinates of the data points.
-        y: The y-coordinates of the data points.
-        title: The title of the plot.
-        xlabel: The label for the x-axis.
-        ylabel: The label for the y-axis.
-        color: The color of the points.
-        alpha: The transparency of the points.
-        size: The size of the points.
-        marker: The marker style of the points.
-        grid: Whether to show a grid.
-        figsize: The size of the figure.
-    
+        x: Values for the x-axis.
+        y: Values for the y-axis.
+        title: Title of the plot. Defaults to ``None``.
+        xlabel: Label for the x-axis. Defaults to ``None``.
+        ylabel: Label for the y-axis. Defaults to ``None``.
+        color: Color of the markers. Defaults to ``"C0"``.
+        alpha: Transparency of the markers, ranging from ``0.0`` (fully
+            transparent) to ``1.0`` (fully opaque). Defaults to ``0.7``.
+        size: Marker size in points squared. Defaults to ``40``.
+        marker: Marker style (for example, ``"o"``, ``"s"``, ``"^"``,
+            or ``"x"``). Defaults to ``"o"``.
+        grid: If ``True``, display grid lines. Defaults to ``False``.
+        figsize: Figure size as ``(width, height)`` in inches.
+            Defaults to ``None``.
+
     Returns:
-        None (displays the plot using matplotlib)
+        None. Displays the scatter plot using Matplotlib.
 
     Example:
-        >>> scatter(x, y, title="Scatter Plot", xlabel="X", ylabel="Y")
-        >>> scatter(x, y, color="red", alpha=0.5, size=50)
+        >>> scatter(
+        ...     x=heights,
+        ...     y=weights,
+        ...     title="Height vs Weight",
+        ...     xlabel="Height (cm)",
+        ...     ylabel="Weight (kg)",
+        ...     color="royalblue",
+        ...     alpha=0.6,
+        ...     size=50,
+        ...     marker="o",
+        ...     grid=True,
+        ...     figsize=(8, 5),
+        ... )
     """
 
     fig, ax = plt.subplots(figsize=figsize or (6, 4))

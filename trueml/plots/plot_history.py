@@ -1,16 +1,22 @@
 import matplotlib.pyplot as plt
 from IPython.display import clear_output, display
 
+
 def history(history):
-    """Plot training metrics stored in History object.
+    """Plot training metrics recorded during model training.
+
+    Visualizes one or more metrics stored in a ``History`` object, with each
+    metric displayed in its own subplot against training epochs.
 
     Args:
-        history: History object containing training metrics.
+        history: A ``History`` object containing recorded metric values and
+            corresponding epoch numbers.
 
     Returns:
-        None (displays the plot in Jupyter notebook)
+        None. Displays the training history in a Jupyter notebook.
 
     Example:
+        >>> model.fit(X, y, epochs=100)
         >>> history(model.history)
     """
 

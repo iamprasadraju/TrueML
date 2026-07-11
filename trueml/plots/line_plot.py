@@ -4,8 +4,8 @@ from typing import Literal
 
 
 def line(
-    X: ArrayLike,
-    Y: ArrayLike,
+    x: ArrayLike,
+    y: ArrayLike,
     *,
     title: str | None = None,
     xlabel: str | None = None,
@@ -16,36 +16,57 @@ def line(
     alpha: float = 1.0,
     figsize: tuple[int, int] | None = None,
 ):
-    """Create a line plot.
+    """
+    Create a line plot.
+
+    A line plot visualizes the relationship between two variables by connecting
+    data points with straight line segments. It is commonly used to show trends,
+    changes over time, or continuous relationships.
 
     Args:
-        X: The x-axis data.
-        Y: The y-axis data.
-        title: The title of the plot.
-        xlabel: The label for the x-axis.
-        ylabel: The label for the y-axis.
-        marker: The marker style. {'o', 's', '^', 'D', 'v', '<', '>', 'p', '*', 'h', 'H', '+', 'x', 'X', 'd', '', ...}
-        color: The color of the line.
-        ls: The linestyle of the line. {'-', '--', '-.', ':', '', ...}
-        alpha: The transparency of the line.
-        figsize: The size of the figure.
+        x: Values for the x-axis.
+        y: Values for the y-axis.
+        title: Title of the plot. Defaults to ``None``.
+        xlabel: Label for the x-axis. Defaults to ``None``.
+        ylabel: Label for the y-axis. Defaults to ``None``.
+        marker: Marker style for each data point (for example, ``"o"``,
+            ``"s"``, or ``"^"``). Defaults to ``None``.
+        color: Color of the line and markers. Defaults to ``"C0"``.
+        ls: Line style. Common values include ``"-"``, ``"--"``, ``"-."``,
+            and ``":"``. If ``None``, a solid line is used unless
+            ``marker`` is specified, in which case only markers are drawn.
+            Defaults to ``None``.
+        alpha: Transparency of the line, ranging from ``0.0`` (fully
+            transparent) to ``1.0`` (fully opaque). Defaults to ``1.0``.
+        figsize: Figure size as ``(width, height)`` in inches.
+            Defaults to ``None``.
 
     Returns:
-        None (displays the plot using matplotlib)
+        None. Displays the line plot using Matplotlib.
 
     Example:
-        line(X, Y, title="Line Plot", xlabel="X", ylabel="Y")
-        line(X, Y, color="red", alpha=0.5)
-        line(X, Y, marker="o", color="blue")
+        >>> line(
+        ...     x=epochs,
+        ...     y=losses,
+        ...     title="Training Loss",
+        ...     xlabel="Epoch",
+        ...     ylabel="Loss",
+        ...     marker="o",
+        ...     color="crimson",
+        ...     ls="-",
+        ...     alpha=0.8,
+        ...     figsize=(8, 5),
+        ... )
     """
+
     if ls is None:
         ls = "-" if marker is None else ""
 
     fig, ax = plt.subplots(figsize=figsize or (6, 4))
 
     ax.plot(
-        X,
-        Y,
+        x,
+        y,
         color=color,
         ls=ls,
         marker=marker,

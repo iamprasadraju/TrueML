@@ -9,22 +9,37 @@ def function2d(
     figsize: tuple = (6, 4),
     title: str = None,
 ) -> None:
-    """Plot a 2D function.
+    """Plot a one-dimensional mathematical function.
+
+    Evaluates a function over a specified range of x-values and displays the
+    result as a 2D line plot.
 
     Args:
-        func: The function to plot.
-        x_range: The range of x values to plot.
-        resolution: The number of points to plot.
-        figsize: The size of the figure.
-        title: The title of the plot.
+    func: A callable that accepts a NumPy array of x-values and returns
+        the corresponding y-values.
+    x_range: Lower and upper bounds of the x-axis as ``(min, max)``.
+        Defaults to ``(-10, 10)``.
+    resolution: Number of evenly spaced points used to evaluate the
+        function. Higher values produce smoother curves. Defaults to
+        ``100``.
+    figsize: Figure size as ``(width, height)`` in inches.
+        Defaults to ``(6, 4)``.
+    title: Title of the plot. If ``None``, the function name is used.
+        Defaults to ``None``.
 
     Returns:
-        None
+        None. Displays the 2D function plot.
 
     Example:
-        >>> def f(x):
+        >>> def quadratic(x):
         ...     return x**2
-        >>> function2d(f)
+        ...
+        >>> function2d(
+        ...     quadratic,
+        ...     x_range=(-5, 5),
+        ...     resolution=200,
+        ...     title="Quadratic Function",
+        ... )
     """
     x = np.linspace(*x_range, resolution)
     y = func(x)
@@ -54,24 +69,42 @@ def function3d(
     cmap: str = "viridis",
     title: str = None,
 ) -> None:
-    """Plot a 3D function.
+    """Plot a two-dimensional mathematical function as a 3D surface.
+
+    Evaluates a function over a grid of x- and y-values and displays the
+    resulting surface in three dimensions.
 
     Args:
-        func: The function to plot.
-        x_range: The range of x values to plot.
-        y_range: The range of y values to plot.
-        resolution: The number of points to plot.
-        figsize: The size of the figure.
-        cmap: The colormap to use for the plot.
-        title: The title of the plot.
+        func: A callable that accepts two NumPy arrays ``(X, Y)`` and returns
+            the corresponding z-values.
+        x_range: Lower and upper bounds of the x-axis as ``(min, max)``.
+            Defaults to ``(-10, 10)``.
+        y_range: Lower and upper bounds of the y-axis as ``(min, max)``.
+            Defaults to ``(-10, 10)``.
+        resolution: Number of evenly spaced points along each axis used to
+            evaluate the function. Higher values produce smoother surfaces.
+            Defaults to ``100``.
+        figsize: Figure size as ``(width, height)`` in inches.
+            Defaults to ``(6, 6)``.
+        cmap: Colormap used to color the surface. Defaults to ``"viridis"``.
+        title: Title of the plot. If ``None``, the function name is used.
+            Defaults to ``None``.
 
     Returns:
-        None
+        None. Displays the 3D surface plot.
 
     Example:
-        >>> def f(x, y):
+        >>> def paraboloid(x, y):
         ...     return x**2 + y**2
-        >>> function3d(f)
+        ...
+        >>> function3d(
+        ...     paraboloid,
+        ...     x_range=(-3, 3),
+        ...     y_range=(-3, 3),
+        ...     resolution=150,
+        ...     cmap="plasma",
+        ...     title="Paraboloid",
+        ... )
     """
     x = np.linspace(*x_range, resolution)
     y = np.linspace(*y_range, resolution)
