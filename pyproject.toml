@@ -4,7 +4,7 @@ version = "0.0.1"
 description = "Machine learning without hidden abstractions."
 
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 
 authors = [
     { name = "Prasad Raju G" }
@@ -32,7 +32,10 @@ where = ["."]
 [dependency-groups]
 dev = [
     "pytest>=9.1.0",
-    "ruff>=0.15.17"
+    "ruff>=0.15.17",
+    "pre-commit>=4.6.0",
+    "black>=25.9.0",
+    "isort>=6.1.0",
 ]
 
 [tool.ruff]
