@@ -5,6 +5,7 @@ from .scatter_plot import scatter
 from .histogram_plot import hist
 from .line_plot import line
 from .bar_plot import bar
+from .box_plot import box
 
 __all__ = [
     "function2d",
@@ -14,4 +15,5 @@ __all__ = [
     "hist",
     "line",
     "bar",
+    "box",
 ]
