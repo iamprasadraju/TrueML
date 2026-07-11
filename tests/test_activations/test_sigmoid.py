@@ -1,4 +1,5 @@
 """Tests for sigmoid activation."""
+import numpy as np
 from trueml.activations.sigmoid import sigmoid
 
 class TestSigmoid:
