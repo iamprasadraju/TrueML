@@ -2,7 +2,7 @@
 
 **Machine learning without hidden abstractions.**
 
-*Version 0.0.1* · [GitHub](https://github.com/iamprasadraju/trueml) · [API Reference](reference/linear-regression.md)
+*Version 0.0.1* · [GitHub](https://github.com/iamprasadraju/trueml) · [API Reference](reference/linear_model/linear_regression.md)
 
 ---
 
@@ -98,12 +98,12 @@ Complete descriptions of every API component. Consult these when you need an exa
 
 | Module | Components |
 |--------|------------|
-| **Linear Models** | [LinearRegression](reference/linear-regression.md) · [LogisticRegression](reference/logistic-regression.md) |
-| **Loss Functions** | [MSEloss](reference/mse-loss.md) · [MAEloss](reference/mae-loss.md) |
-| **Error Functions** | [errors](reference/errors.md) — `residual_error`, `absolute_error` |
-| **Activations** | [activations](reference/activations.md) — `sigmoid`, `linear` |
-| **Linear Algebra** | [linalg](reference/linalg.md) — `matmul`, `npmatmul` |
-| **Visualization** | [visualization](reference/visualization.md) — `plot2d`, `plot3d`, `plot_metrics`, `LivePlot` |
+| **Linear Models** | linear_model — [LinearRegression](reference/linear_model/linear_regression.md), [LogisticRegression](reference/linear_model/logistic_regression.md) |
+| **Loss Functions** | losses — [MSEloss](reference/losses/mean_squared_error.md), [MAEloss](reference/losses/mean_absolute_error.md) |
+| **Error Functions** | errors — [residual_error](reference/errors/residual_error.md), [absolute_error](reference/errors/absolute_error.md) |
+| **Activations** | activations — [sigmoid](reference/activations/sigmoid.md), [linear](reference/activations/linear.md) |
+| **Linear Algebra** | linalg — [matmul](reference/linalg/matmul.md) |
+| **Plots** | plots — [function_plot](reference/plots/function_plot.md), [plot_history](reference/plots/plot_history.md) |
 | **Utilities** | [helpers](reference/helpers.md) — `timeit`, `generate`, `memprofile` |
 
 ### :material-lightbulb: Explanation — Understanding why
@@ -131,4 +131,4 @@ Conceptual discussions that provide context and background. Read these to deepen
 
 - **New?** Start with the [Your First Training Loop](tutorials/your-first-training-loop.md) tutorial.
 - **Curious about the design?** Read the [Philosophy](philosophy.md) page.
-- **Looking for a specific function?** Jump to the [API Reference](reference/linear-regression.md).
+- **Looking for a specific function?** Jump to the [API Reference](reference/linear_model/linear_regression.md).

@@ -45,7 +45,7 @@ This documentation is styled as a **Laboratory Manual**, not a product reference
 | Analyze the residuals | Compute gradient | `loss_fn.grad(y, y_pred)` + `model.grad(X, dloss)` |
 | Adjust the procedure | Update parameters | `model.backward(dw, db)` |
 
-Each [API Reference](reference/linear-regression.md) page is structured as a **Mathematical Contract** — a precise statement of inputs, outputs, and derivatives. The contracts are designed to be read alongside the source code: **the implementation is the math**.
+Each [API Reference](reference/linear_model/linear_regression.md) page is structured as a **Mathematical Contract** — a precise statement of inputs, outputs, and derivatives. The contracts are designed to be read alongside the source code: **the implementation is the math**.
 
 ---
 

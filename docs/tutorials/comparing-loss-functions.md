@@ -101,5 +101,5 @@ Because MAE's constant gradient magnitude means the model never slows down as it
 
 ## Next Steps
 
-- Check the [MAEloss Reference](../reference/mae-loss.md) and [MSEloss Reference](../reference/mse-loss.md) to see the exact mathematical implementation of these gradients.
+- Check the [MAEloss Reference](../reference/losses/mean_absolute_error.md) and [MSEloss Reference](../reference/losses/mean_squared_error.md) to see the exact mathematical implementation of these gradients.
 - Read the deep dive [About Loss Functions](../explanation/about-loss-functions.md) for the statistical theory (Gaussian vs Laplacian distributions) behind this behavior.

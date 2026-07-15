@@ -8,16 +8,7 @@ Benchmarking, profiling, and data generation utilities to facilitate machine lea
 
 ## `timeit`
 
-```python
-@trueml.helpers.timeit
-def func(*args, **kwargs)
-```
-
 A decorator that measures and prints the execution time of a function. The number of execution iterations is dynamically controlled by the `I` environment variable.
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `func` | `callable` | — | The function to be timed. |
 
 **Environment Variable `I`:**
 - `I >= 1` (default 10): Runs the function `I` times sequentially, printing the execution time (in seconds) for each run.
@@ -48,16 +39,7 @@ benchmark()
 
 ## `memprofile`
 
-```python
-@trueml.helpers.memprofile
-def func(*args, **kwargs)
-```
-
 A decorator that profiles the memory allocations of a function using Python's built-in `tracemalloc` library.
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `func` | `callable` | — | The function to be memory-profiled. |
 
 **Output:**
 Prints the top 10 memory-allocating lines of code executed during the function call.
@@ -80,20 +62,7 @@ allocate()
 
 ## `generate`
 
-```python
-trueml.helpers.generate(lower: int = 1, upper: int = 100, size: tuple = (1, 1)) -> np.ndarray
-```
-
 Generates a random integer matrix drawn from a discrete uniform distribution.
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `lower` | `int` | `1` | The inclusive lower bound of the generated integers. |
-| `upper` | `int` | `100` | The exclusive upper bound of the generated integers. |
-| `size` | `tuple` | `(1, 1)` | The shape of the output matrix. |
-
-**Returns:** 
-A NumPy array of the specified `size` populated with random integers.
 
 **Example:**
 ```python
@@ -105,5 +74,24 @@ print(X)
 #  [2, 2, 3]]
 ```
 
+---
+
+## API Reference
+
+::: trueml.helpers.timeit
+    options:
+      show_source: true
+      heading_level: 3
+
+::: trueml.helpers.generate
+    options:
+      show_source: true
+      heading_level: 3
+
+::: trueml.helpers.memprofile
+    options:
+      show_source: true
+      heading_level: 3
+
 ## See Also
-- [linalg](linalg.md) — Mathematical primitives that can be benchmarked using these tools.
+- [matmul](linalg/matmul.md) — Helper for linear algebra operations.
