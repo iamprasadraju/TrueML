@@ -1,8 +1,8 @@
-from .mean import mean
-from .variance import variance
-from .standard_deviation import std
 from .maximum import max
-from .minimum import min
+from .mean import mean
 from .median import median
+from .minimum import min
+from .standard_deviation import std
+from .variance import var
 
-__all__ = ["mean", "variance", "std", "max", "min", "median"]
+__all__ = ["mean", "var", "std", "max", "min", "median"]
