@@ -1,24 +1,27 @@
-from .bar_plot import bar
-from .box_plot import box
+from . import bivariate, multivariate, univariate
+from .bivariate import line, scatter
 from .contour_plot import contour
-from .heatmap_plot import heatmap
-from .histogram_plot import hist
+from .function_plot import function2d, function3d
 from .imshow import imshow
-from .line_plot import line
-from .plot_func import function2d, function3d
+from .multivariate import heatmap
 from .plot_history import history
-from .scatter_plot import scatter
+from .univariate import bar, box, hist
 
 __all__ = [
-    "function2d",
-    "function3d",
-    "history",
-    "scatter",
-    "hist",
-    "line",
+    # Subpackages
+    "univariate",
+    "bivariate",
+    "multivariate",
+    # Plot functions
     "bar",
     "box",
+    "hist",
+    "line",
+    "scatter",
     "heatmap",
     "contour",
+    "function2d",
+    "function3d",
     "imshow",
+    "history",
 ]

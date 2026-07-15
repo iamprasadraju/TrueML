@@ -1,6 +1,7 @@
+from typing import Any, Literal
+
 import matplotlib.pyplot as plt
 from numpy.typing import ArrayLike
-from typing import Any, Literal
 
 
 def bar(

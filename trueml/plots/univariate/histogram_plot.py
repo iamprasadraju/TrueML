@@ -1,6 +1,7 @@
+from typing import Literal
+
 import matplotlib.pyplot as plt
 from numpy.typing import ArrayLike
-from typing import Literal
 
 
 def hist(

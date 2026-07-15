@@ -1,5 +1,6 @@
-import matplotlib.pyplot as plt
 from collections.abc import Sequence
+
+import matplotlib.pyplot as plt
 from numpy.typing import ArrayLike
 
 
