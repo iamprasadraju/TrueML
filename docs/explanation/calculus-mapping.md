@@ -90,5 +90,5 @@ $$ w \gets w - \eta \cdot dw $$
 The calculus finished the moment `dw` was created. This separation proves that gradient *computation* (calculus) and parameter *optimization* (arithmetic) are two fundamentally different operations, even though frameworks like PyTorch blur them together inside `optimizer.step()`.
 
 ## Further Reading
-- [LinearRegression Reference](../reference/linear-regression.md) — See the mathematical contract implemented in code.
+- [LinearRegression Reference](../reference/linear_model/linear_regression.md) — See the mathematical contract implemented in code.
 - [About Gradient Descent](about-gradient-descent.md) — Why the gradient vector points toward the steepest ascent.

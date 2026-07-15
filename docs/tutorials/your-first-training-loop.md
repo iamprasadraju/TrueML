@@ -132,4 +132,4 @@ Because TrueML exposes these primitive operations as NumPy arrays, you could ins
 
 - **Compare losses:** See what happens when the data contains extreme outliers in the [Comparing Loss Functions](comparing-loss-functions.md) tutorial.
 - **Deepen the math:** Read the [Calculus Mapping](../explanation/calculus-mapping.md) explanation to see the rigorous derivation of the chain rule used in step 3.
-- **Explore the API:** Check the [LinearRegression Reference](../reference/linear-regression.md) for the formal class contract.
+- **Explore the API:** Check the [LinearRegression Reference](../reference/linear_model/linear_regression.md) for the formal class contract.

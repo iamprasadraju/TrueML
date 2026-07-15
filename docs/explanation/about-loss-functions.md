@@ -70,5 +70,5 @@ In optimization theory, `MSEloss` is prized because it is smooth and infinitely 
 ## Further Reading
 
 - **Tutorial**: [Comparing Loss Functions](../tutorials/comparing-loss-functions.md) — A hands-on demonstration of L1 vs L2 robustness.
-- **Reference**: [MSEloss](../reference/mse-loss.md) and [MAEloss](../reference/mae-loss.md).
+- **Reference**: [MSEloss](../reference/losses/mean_squared_error.md) and [MAEloss](../reference/losses/mean_absolute_error.md).
 - **Related**: [Calculus Mapping](./calculus-mapping.md) — How the loss gradient combines with the model gradient.
