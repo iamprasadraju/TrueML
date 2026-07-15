@@ -1,5 +1,3 @@
-from .visualize import visualize
+"""Extras module."""
 
-__all__ = [
-    "visualize",
-]
+__all__ = []
