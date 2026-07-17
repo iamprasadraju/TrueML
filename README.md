@@ -2,7 +2,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="docs/trueml-logo.svg">
-  <img alt="trueml logo" src="docs/trueml-logo.svg" width="50%" height="50%">
+  <img alt="trueml logo" src="docs/trueml-logo.svg" width="60%" height="50%">
 </picture>
 
 **Machine learning without hidden abstractions.**
