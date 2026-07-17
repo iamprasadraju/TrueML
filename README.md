@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: light)" srcset="docs/trueml-dark.svg">
-  <img alt="trueml logo" src="docs/trueml-light.svg" width="50%" height="50%">
+  <source media="(prefers-color-scheme: light)" srcset="docs/trueml.svg">
+  <img alt="trueml logo" src="docs/trueml.svg" width="40%" height="50%">
 </picture>
 
 **Machine learning without hidden abstractions.**
