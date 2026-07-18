@@ -1,15 +1,12 @@
+from typing import Self
+
 import numpy as np
-from numpy.typing import ArrayLike
+from numpy.typing import ArrayLike, NDArray
 
 
 class MinMaxScaler:
     """
     Scale features to a specified range.
-
-    MinMaxScaler is a preprocessing technique that linearly rescales each
-    feature independently by subtracting its minimum value and dividing by
-    its range (maximum - minimum), then mapping the result to the desired
-    feature range.
 
     The transformation is defined as::
 
@@ -17,62 +14,26 @@ class MinMaxScaler:
                    * (range_max - range_min)
                    + range_min
 
-    If a feature has zero range (all values are identical), its scale is
-    treated as 1 to avoid division by zero. Such features are mapped to
-    the minimum value of the specified feature range.
+    Each feature is scaled independently.
 
-    Attributes:
-        min_ (numpy.ndarray):
-            Minimum value observed for each feature during fitting.
+    Parameters
+    ----------
+    feature_range : tuple[float, float], default=(0.0, 1.0)
+        Desired range of transformed data.
 
-        max_ (numpy.ndarray):
-            Maximum value observed for each feature during fitting.
+    Attributes
+    ----------
+    min_ : ndarray of shape (n_features,)
+        Minimum value observed for each feature.
 
-        feature_range (tuple[float, float]):
-            Desired range of transformed data.
-
-    Examples:
-        >>> import numpy as np
-        >>> from trueml.preprocessing import MinMaxScaler
-
-        >>> X = np.array([
-        ...     [1, 10],
-        ...     [2, 20],
-        ...     [3, 30],
-        ... ])
-
-        >>> scaler = MinMaxScaler()
-        >>> X_scaled = scaler.fit_transform(X)
-
-        >>> X_scaled
-        array([[0. , 0. ],
-               [0.5, 0.5],
-               [1. , 1. ]])
-
-        >>> scaler.min_
-        array([ 1., 10.])
-
-        >>> scaler.max_
-        array([ 3., 30.])
-
-        >>> scaler = MinMaxScaler(feature_range=(-1, 1))
-        >>> scaler.fit_transform(np.array([1, 2, 3]))
-        array([-1.,  0.,  1.])
+    max_ : ndarray of shape (n_features,)
+        Maximum value observed for each feature.
     """
 
-    def __init__(self, feature_range: tuple[float, float] = (0.0, 1.0)):
-        """
-        Initialize a MinMaxScaler.
-
-        Args:
-            feature_range:
-                Desired range of transformed data as ``(min, max)``.
-
-        Raises:
-            ValueError:
-                If ``feature_range`` is not of the form ``(min, max)``
-                with ``min < max``.
-        """
+    def __init__(
+        self,
+        feature_range: tuple[float, float] = (0.0, 1.0),
+    ) -> None:
         range_min, range_max = feature_range
 
         if range_min >= range_max:
@@ -81,77 +42,115 @@ class MinMaxScaler:
             )
 
         self.feature_range = feature_range
-        self.min_ = None
-        self.max_ = None
+        self.min_: NDArray | None = None
+        self.max_: NDArray | None = None
 
-    def fit(self, x: ArrayLike):
+    def fit(self, x: ArrayLike) -> Self:
         """
         Compute the minimum and maximum value of each feature.
 
-        Args:
-            x (ArrayLike):
-                Input data of shape ``(n_samples, n_features)`` or
-                ``(n_samples,)``.
+        Parameters
+        ----------
+        x : ArrayLike of shape (n_samples,) or (n_samples, n_features)
+            Input data.
 
-        Returns:
-            MinMaxScaler:
-                The fitted scaler instance.
+        Returns
+        -------
+        Self
+            Fitted scaler.
         """
         x = np.asarray(x, dtype=float)
+
+        if x.ndim == 1:
+            x = x.reshape(-1, 1)
 
         self.min_ = np.min(x, axis=0)
         self.max_ = np.max(x, axis=0)
 
         return self
 
-    def transform(self, x: ArrayLike):
+    def transform(self, x: ArrayLike) -> NDArray:
         """
-        Scale input data using the fitted feature-wise statistics.
+        Scale input data using the fitted statistics.
 
-        Args:
-            x (ArrayLike):
-                Input data of shape ``(n_samples, n_features)`` or
-                ``(n_samples,)``.
+        Parameters
+        ----------
+        x : ArrayLike of shape (n_samples,) or (n_samples, n_features)
+            Input data.
 
-        Returns:
-            numpy.ndarray:
-                The scaled data with values in the specified
-                ``feature_range``.
-
-        Raises:
-            ValueError:
-                If the scaler has not been fitted before calling
-                ``transform``.
+        Returns
+        -------
+        NDArray
+            Scaled data.
         """
         if self.min_ is None or self.max_ is None:
             raise ValueError("MinMaxScaler has not been fitted.")
 
         x = np.asarray(x, dtype=float)
 
+        is_1d = x.ndim == 1
+        if is_1d:
+            x = x.reshape(-1, 1)
+
         scale = self.max_ - self.min_
-        scale[scale == 0] = 1  # Prevent division by zero
+        scale = np.where(scale == 0, 1, scale)
 
         range_min, range_max = self.feature_range
 
-        return (x - self.min_) / scale * (range_max - range_min) + range_min
+        x_scaled = ((x - self.min_) / scale) * (range_max - range_min) + range_min
 
-    def fit_transform(self, x: ArrayLike):
+        if is_1d:
+            return x_scaled.ravel()
+
+        return x_scaled
+
+    def fit_transform(self, x: ArrayLike) -> NDArray:
         """
-        Fit the scaler to the data and immediately transform it.
+        Fit the scaler to the data and transform it.
 
-        This is equivalent to calling::
+        Parameters
+        ----------
+        x : ArrayLike of shape (n_samples,) or (n_samples, n_features)
+            Input data.
 
-            scaler.fit(x)
-            scaler.transform(x)
-
-        Args:
-            x (ArrayLike):
-                Input data of shape ``(n_samples, n_features)`` or
-                ``(n_samples,)``.
-
-        Returns:
-            numpy.ndarray:
-                The scaled data with values in the specified
-                ``feature_range``.
+        Returns
+        -------
+        NDArray
+            Scaled data.
         """
         return self.fit(x).transform(x)
+
+    def inverse_transform(self, x: ArrayLike) -> NDArray:
+        """
+        Undo the scaling transformation.
+
+        Parameters
+        ----------
+        x : ArrayLike of shape (n_samples,) or (n_samples, n_features)
+            Scaled data.
+
+        Returns
+        -------
+        NDArray
+            Data transformed back to the original scale.
+        """
+        if self.min_ is None or self.max_ is None:
+            raise ValueError("MinMaxScaler has not been fitted.")
+
+        x = np.asarray(x, dtype=float)
+
+        is_1d = x.ndim == 1
+        if is_1d:
+            x = x.reshape(-1, 1)
+
+        scale = self.max_ - self.min_
+        scale = np.where(scale == 0, 1, scale)
+
+        range_min, range_max = self.feature_range
+
+        x_original = ((x - range_min) / (range_max - range_min)) * scale + self.min_
+
+        if is_1d:
+            return x_original.ravel()
+
+        return x_original
