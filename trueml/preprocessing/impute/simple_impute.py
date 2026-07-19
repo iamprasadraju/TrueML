@@ -30,14 +30,14 @@ class SimpleImputer:
 
     def __init__(
         self,
-        missing_values: Any = np.nan,
+        missing_values=np.nan,
         strategy: str = "mean",
-        fill_value: Any = None,
+        fill_value=None,
     ) -> None:
         self.missing_values = missing_values
         self.strategy = strategy
         self.fill_value = fill_value
-        self.statistics_: Any = None
+        self.statistics_ = None
 
     def fit(self, x: ArrayLike):
         """
