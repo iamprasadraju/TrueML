@@ -106,9 +106,6 @@ nav:
     - preprocessing:
       - data_split:
         - train_test_split: reference/preprocessing/data_split/train_test_split.md
-      - eda:
-        - univariate:
-          - describe: reference/preprocessing/eda/univariate/describe.md
       - encoding:
         - label_encoding: reference/preprocessing/encoding/label_encoding.md
         - one_hot_encoding: reference/preprocessing/encoding/one_hot_encoding.md
