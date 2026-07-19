@@ -1,5 +1,3 @@
-from typing import Self
-
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
@@ -45,7 +43,7 @@ class MinMaxScaler:
         self.min_: NDArray | None = None
         self.max_: NDArray | None = None
 
-    def fit(self, x: ArrayLike) -> Self:
+    def fit(self, x: ArrayLike):
         """
         Compute the minimum and maximum value of each feature.
 
