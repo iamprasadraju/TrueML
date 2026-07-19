@@ -1,5 +1,3 @@
-from typing import Any, Self
-
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
@@ -41,7 +39,7 @@ class SimpleImputer:
         self.fill_value = fill_value
         self.statistics_: Any = None
 
-    def fit(self, x: ArrayLike) -> Self:
+    def fit(self, x: ArrayLike):
         """
         Compute the replacement value from the input data.
 

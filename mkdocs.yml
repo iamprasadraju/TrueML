@@ -25,12 +25,36 @@ theme:
         icon: material/brightness-7
         name: Switch to dark mode
 
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            docstring_style: numpy
+            show_source: true
+            show_root_heading: true
+            show_root_full_path: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            members_order: source
+            heading_level: 3
+            show_signature_annotations: true
+            separate_signature: true
+            merge_init_into_class: true
+
 markdown_extensions:
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.highlight
   - pymdownx.superfences
   - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
 
 extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
@@ -47,22 +71,58 @@ nav:
     - Implement Minibatch GD: how-to/implement-minibatch-gd.md
     - Debug Gradient Issues: how-to/debug-gradient-issues.md
   - Reference:
-    - Linear Models:
-      - LinearRegression: reference/linear-regression.md
-      - LogisticRegression: reference/logistic-regression.md
-    - Loss Functions:
-      - MSEloss: reference/mse-loss.md
-      - MAEloss: reference/mae-loss.md
-    - Error Functions:
-      - errors: reference/errors.md
-    - Activations:
-      - activations: reference/activations.md
-    - Linear Algebra:
-      - linalg: reference/linalg.md
-    - Visualization:
-      - visualization: reference/visualization.md
-    - Utilities:
-      - helpers: reference/helpers.md
+    - activations:
+      - linear: reference/activations/linear.md
+      - sigmoid: reference/activations/sigmoid.md
+    - errors:
+      - absolute_error: reference/errors/absolute_error.md
+      - residual_error: reference/errors/residual_error.md
+    - extras: reference/extras.md
+    - helpers: reference/helpers.md
+    - history: reference/history.md
+    - linalg:
+      - matmul: reference/linalg/matmul.md
+    - linear_model:
+      - linear_regression: reference/linear_model/linear_regression.md
+      - logistic_regression: reference/linear_model/logistic_regression.md
+    - losses:
+      - mean_absolute_error: reference/losses/mean_absolute_error.md
+      - mean_squared_error: reference/losses/mean_squared_error.md
+    - metrics: reference/metrics.md
+    - plots:
+      - bivariate:
+        - line_plot: reference/plots/bivariate/line_plot.md
+        - scatter_plot: reference/plots/bivariate/scatter_plot.md
+      - contour_plot: reference/plots/contour_plot.md
+      - function_plot: reference/plots/function_plot.md
+      - imshow: reference/plots/imshow.md
+      - multivariate:
+        - heatmap_plot: reference/plots/multivariate/heatmap_plot.md
+      - plot_history: reference/plots/plot_history.md
+      - univariate:
+        - bar_plot: reference/plots/univariate/bar_plot.md
+        - box_plot: reference/plots/univariate/box_plot.md
+        - histogram_plot: reference/plots/univariate/histogram_plot.md
+    - preprocessing:
+      - data_split:
+        - train_test_split: reference/preprocessing/data_split/train_test_split.md
+      - eda:
+        - univariate:
+          - describe: reference/preprocessing/eda/univariate/describe.md
+      - encoding:
+        - label_encoding: reference/preprocessing/encoding/label_encoding.md
+        - one_hot_encoding: reference/preprocessing/encoding/one_hot_encoding.md
+        - ordinal_encoding: reference/preprocessing/encoding/ordinal_encoding.md
+        - target_encoding: reference/preprocessing/encoding/target_encoding.md
+      - scaling:
+        - min_max_scaler: reference/preprocessing/scaling/min_max_scaler.md
+    - stats:
+      - maximum: reference/stats/maximum.md
+      - mean: reference/stats/mean.md
+      - median: reference/stats/median.md
+      - minimum: reference/stats/minimum.md
+      - standard_deviation: reference/stats/standard_deviation.md
+      - variance: reference/stats/variance.md
   - Explanation:
     - About Gradient Descent: explanation/about-gradient-descent.md
     - About Loss Functions: explanation/about-loss-functions.md
