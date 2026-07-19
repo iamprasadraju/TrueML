@@ -1,5 +1,6 @@
 __pycache__/
 *.pyc
 trueml.egg-info/
-site/ 
+site/
 .ipynb_checkpoints/
+.DS_Store
