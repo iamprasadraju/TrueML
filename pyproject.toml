@@ -2,35 +2,31 @@
 name = "trueml"
 version = "0.0.1"
 description = "Machine learning without hidden abstractions."
-
 readme = "README.md"
-requires-python = ">=3.10"
+license = "MIT"
+requires-python = ">=3.11"
 
 authors = [
     { name = "Prasad Raju G" }
 ]
 
-dependencies = [
-    "numpy",
-    "matplotlib",
-    "ipympl",
+
+classifiers = [
+    "Programming Language :: Python :: 3",
 ]
 
-[build-system]
-requires = ["setuptools>=61"]
-build-backend = "setuptools.build_meta"
+dependencies = [
+    "numpy"
+]
+
+[project.urls]
+Homepage = "https://github.com/iamprasadraju/trueml"
+Repository = "https://github.com/iamprasadraju/trueml"
+Documentation = "https://iamprasadraju.github.io/trueml/"
+Issues = "https://github.com/iamprasadraju/trueml/issues"
+
 
 [project.optional-dependencies]
-docs = [
-    "mkdocs",
-    "mkdocs-material",
-    "mkdocstrings[python]",
-]
-
-[tool.setuptools.packages.find]
-where = ["."]
-
-[dependency-groups]
 dev = [
     "pytest>=9.1.0",
     "ruff>=0.15.17",
@@ -39,5 +35,17 @@ dev = [
     "isort>=6.1.0",
 ]
 
-[tool.ruff]
-extend-exclude = ["notebooks", "benchmarks/*.ipynb"]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]",
+]
+
+
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+
+[tool.setuptools.packages.find]
+where = ["."]

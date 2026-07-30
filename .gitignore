@@ -1,6 +1,39 @@
+# Python
 __pycache__/
-*.pyc
-trueml.egg-info/
-site/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Linting / type checking
+.ruff_cache/
+.mypy_cache/
+
+# Jupyter
 .ipynb_checkpoints/
+
+# Documentation build
+site/
+
+# IDEs / editors
+.vscode/
+.idea/
+
+# OS files
 .DS_Store
+Thumbs.db
+
+uv.lock
