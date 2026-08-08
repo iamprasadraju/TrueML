@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "trueml"
 version = "0.0.1"
@@ -7,16 +11,22 @@ license = "MIT"
 requires-python = ">=3.11"
 
 authors = [
-    { name = "Prasad Raju G" }
+    { name = "Prasad Raju G", email = "gls.prasadraju@gmail.com" }
 ]
-
 
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 
 dependencies = [
-    "numpy"
+    "numpy",
+]
+
+[project.optional-dependencies]
+viz = [
+    "matplotlib",
 ]
 
 [project.urls]
@@ -25,14 +35,12 @@ Repository = "https://github.com/iamprasadraju/trueml"
 Documentation = "https://iamprasadraju.github.io/trueml/"
 Issues = "https://github.com/iamprasadraju/trueml/issues"
 
-
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
-    "pytest>=9.1.0",
-    "ruff>=0.15.17",
-    "pre-commit>=4.6.0",
-    "black>=25.9.0",
-    "isort>=6.1.0",
+    "mypy>=2.3.0",
+    "prek>=0.4.12",
+    "pytest>=9.1.1",
+    "ruff>=0.16.2",
 ]
 
 docs = [
@@ -41,11 +49,31 @@ docs = [
     "mkdocstrings[python]",
 ]
 
-
-[build-system]
-requires = ["setuptools>=77"]
-build-backend = "setuptools.build_meta"
-
-
 [tool.setuptools.packages.find]
 where = ["."]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle
+    "F",   # Pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "RUF", # Ruff-specific rules
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.13"
+files = ["trueml"]
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
