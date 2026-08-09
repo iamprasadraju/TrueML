@@ -12,10 +12,10 @@ Available Losses
 - :class:`MAEloss` — Mean Absolute Error
 """
 
-from .mean_absolute_error import MAEloss
-from .mean_squared_error import MSEloss
+from .mean_absolute_error import MAELoss
+from .mean_squared_error import MSELoss
 
 __all__ = [
-    "MAEloss",
-    "MSEloss",
+    "MAELoss",
+    "MSELoss",
 ]
