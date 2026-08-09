@@ -1,58 +1,19 @@
 import numpy as np
-from numpy.typing import ArrayLike, NDArray
 
 
 class SimpleImputer:
-    """
-    Simple imputer for replacing missing values.
-
-    Parameters
-    ----------
-    missing_values : Any, default=np.nan
-        The placeholder for missing values.
-
-    strategy : {"mean", "median", "most_frequent", "constant"}, default="mean"
-        Strategy used to replace missing values.
-
-        - "mean": Replace missing values with the mean of each feature.
-        - "median": Replace missing values with the median of each feature.
-        - "most_frequent": Replace missing values with the most frequent value.
-        - "constant": Replace missing values with `fill_value`.
-
-    fill_value : Any, default=None
-        Value used when `strategy="constant"`.
-
-    Attributes
-    ----------
-    statistics_ : Any
-        The computed replacement value learned during :meth:`fit`.
-    """
-
     def __init__(
         self,
         missing_values=np.nan,
-        strategy: str = "mean",
+        strategy="mean",
         fill_value=None,
-    ) -> None:
+    ):
         self.missing_values = missing_values
         self.strategy = strategy
         self.fill_value = fill_value
         self.statistics_ = None
 
-    def fit(self, x: ArrayLike):
-        """
-        Compute the replacement value from the input data.
-
-        Parameters
-        ----------
-        x : ArrayLike
-            Input data containing missing values.
-
-        Returns
-        -------
-        Self
-            Fitted imputer.
-        """
+    def fit(self, x):
         x = np.asarray(x)
 
         if np.isnan(self.missing_values):
@@ -83,25 +44,7 @@ class SimpleImputer:
 
         return self
 
-    def transform(self, x: ArrayLike) -> NDArray:
-        """
-        Replace missing values using the statistic computed during :meth:`fit`.
-
-        Parameters
-        ----------
-        x : ArrayLike
-            Input data to transform.
-
-        Returns
-        -------
-        NDArray
-            Transformed array with missing values replaced.
-
-        Raises
-        ------
-        ValueError
-            If the imputer has not been fitted.
-        """
+    def transform(self, x):
         if self.statistics_ is None:
             raise ValueError("Call 'fit' before 'transform'.")
 
@@ -116,18 +59,5 @@ class SimpleImputer:
 
         return x
 
-    def fit_transform(self, x: ArrayLike) -> NDArray:
-        """
-        Fit the imputer and transform the input data.
-
-        Parameters
-        ----------
-        x : ArrayLike
-            Input data.
-
-        Returns
-        -------
-        NDArray
-            Transformed array with missing values replaced.
-        """
+    def fit_transform(self, x):
         return self.fit(x).transform(x)
