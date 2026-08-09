@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "trueml"
-version = "0.0.1"
+version = "0.0.2"
 description = "Machine learning without hidden abstractions."
 readme = "README.md"
 license = "MIT"
