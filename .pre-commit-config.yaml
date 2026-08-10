@@ -13,3 +13,10 @@ repos:
         entry: uv run ruff format
         language: system
         types: [python]
+
+      - id: pytest
+        name: pytest
+        entry: uv run --no-sync pytest
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
