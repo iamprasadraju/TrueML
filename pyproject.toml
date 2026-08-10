@@ -53,6 +53,7 @@ docs = [
 where = ["."]
 
 [tool.ruff]
+include = ["*.py"]
 target-version = "py311"
 line-length = 88
 
