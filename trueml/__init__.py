@@ -1,4 +1,4 @@
-from . import linear_model, losses, plot, preprocessing
+from . import linear_model, losses, plot, preprocessing, viz
 
 __all__ = [
     "activations",
@@ -6,4 +6,5 @@ __all__ = [
     "losses",
     "plot",
     "preprocessing",
+    "viz",
 ]
