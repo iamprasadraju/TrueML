@@ -6,8 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "trueml"
 version = "0.0.2"
 description = "Machine learning without hidden abstractions."
-readme = "README.md"
-license = "MIT"
+readme = "readme.md"
+license = { text = "MIT" }
 requires-python = ">=3.11"
 
 authors = [
@@ -18,15 +18,12 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
 ]
 
 dependencies = [
     "numpy",
-]
-
-[project.optional-dependencies]
-viz = [
-    "matplotlib",
+    "networkx",
 ]
 
 [project.urls]
@@ -37,10 +34,10 @@ Issues = "https://github.com/iamprasadraju/trueml/issues"
 
 [dependency-groups]
 dev = [
-    "mypy>=2.3.0",
-    "prek>=0.4.12",
-    "pytest>=9.1.1",
-    "ruff>=0.16.2",
+    # "pyrefly",
+    "ruff",
+    "pytest",
+    "prek",
 ]
 
 docs = [
@@ -52,6 +49,10 @@ docs = [
 [tool.setuptools.packages.find]
 where = ["."]
 
+# [tool.pyrefly]
+# preset = "default"
+# search-path = ["."]
+
 [tool.ruff]
 include = ["*.py"]
 target-version = "py311"
@@ -59,7 +60,7 @@ line-length = 88
 
 [tool.ruff.lint]
 select = [
-    "E",   # pycodestyle
+    "E",   # pycodestyle errors
     "F",   # Pyflakes
     "I",   # isort
     "UP",  # pyupgrade
@@ -67,6 +68,9 @@ select = [
     "SIM", # flake8-simplify
     "RUF", # Ruff-specific rules
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"trueml/viz/cgraph.py" = ["E501"]
 
 [tool.ruff.format]
 quote-style = "double"

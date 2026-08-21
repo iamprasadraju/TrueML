@@ -1,4 +1,4 @@
-from .cgraph import ComputationGraph
+from trueml.viz.cgraph import ComputationGraph
 
 __all__ = [
     "ComputationGraph",

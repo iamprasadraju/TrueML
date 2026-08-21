@@ -1,56 +1,109 @@
 """computation graph builder + renderer. traces the UOp DAG and draws it as
 self-contained interactive HTML/SVG. no bloat."""
 
-import math, json, os, tempfile, textwrap, webbrowser
-from pathlib import Path
+import json
+import math
+import os
+import tempfile
+import textwrap
+import webbrowser
 
 import networkx as nx
 import numpy as np
 
 # ── visual constants ── micrograd-style, academic look ──────────────────────
-EDGE = dict(color="#3a3a3a", width=1.4, rad=0.15, max_rad_dist=3.5,
-            hover_color="#0a0a0a", hover_width=2.6)
-OP = dict(fill="white", edge="black", lw=1.6, font=10, min_d=1.5, char_k=0.11, caption_pad=0.18)
-TEN = dict(fill="#fafafa", edge="black", lw=1.6, w=3.4, header=0.52, line_h=0.32,
-           pad=0.2, min_h=1.05, text_pad=0.24)
+EDGE = dict(
+    color="#3a3a3a",
+    width=1.4,
+    rad=0.15,
+    max_rad_dist=3.5,
+    hover_color="#0a0a0a",
+    hover_width=2.6,
+)
+OP = dict(
+    fill="white",
+    edge="black",
+    lw=1.6,
+    font=10,
+    min_d=1.5,
+    char_k=0.11,
+    caption_pad=0.18,
+)
+TEN = dict(
+    fill="#fafafa",
+    edge="black",
+    lw=1.6,
+    w=3.4,
+    header=0.52,
+    line_h=0.32,
+    pad=0.2,
+    min_h=1.05,
+    text_pad=0.24,
+)
 LAYOUT = dict(hgap=1.35, vgap=0.95, meta_chars=22, upi=1.35, dpi=150, margin=0.05)
 STYLE = dict(label=10.5, meta=8.5, text="#111", muted="#555", sep="#999")
 ZOOM = dict(factor=0.9, lo=0.5, hi=10.0)
 
-BROADCAST_OPS = {"ADD","SUB","SUBTRACT","MUL","MULTIPLY","DIV","DIVIDE","POW","RELU","SIGMOID","EXP","LOG","NEG"}
+BROADCAST_OPS = {
+    "ADD",
+    "SUB",
+    "SUBTRACT",
+    "MUL",
+    "MULTIPLY",
+    "DIV",
+    "DIVIDE",
+    "POW",
+    "RELU",
+    "SIGMOID",
+    "EXP",
+    "LOG",
+    "NEG",
+}
+
 
 # ── shape inference helpers ─────────────────────────────────────────────────
 def _matmul_shape(a, b):
-    if len(a) == 1 and len(b) == 1: return () if a[0] == b[0] else None
+    if len(a) == 1 and len(b) == 1:
+        return () if a[0] == b[0] else None
     if len(a) == 1:
-        return None if a[0] != b[-2] else tuple(np.broadcast_shapes(b[:-2])) + (b[-1],)
+        return None if a[0] != b[-2] else (*tuple(np.broadcast_shapes(b[:-2])), b[-1])
     if len(b) == 1:
-        return None if a[-1] != b[0] else tuple(np.broadcast_shapes(a[:-2])) + (a[-2],)
-    if a[-1] != b[-2]: return None
-    return tuple(np.broadcast_shapes(a[:-2], b[:-2])) + (a[-2], b[-1])
+        return None if a[-1] != b[0] else (*tuple(np.broadcast_shapes(a[:-2])), a[-2])
+    if a[-1] != b[-2]:
+        return None
+    return (*tuple(np.broadcast_shapes(a[:-2], b[:-2])), a[-2], b[-1])
+
 
 # ── geometry: clip segments to shapes ───────────────────────────────────────
 def _clip_box(p, q, box):
     x0, y0, x1, y1 = box
-    dx, dy = q[0]-p[0], q[1]-p[1]
-    inside = lambda t: x0 <= p[0]+t*dx <= x1 and y0 <= p[1]+t*dy <= y1
+    dx, dy = q[0] - p[0], q[1] - p[1]
+
+    def inside(t):
+        return x0 <= p[0] + t * dx <= x1 and y0 <= p[1] + t * dy <= y1
+
     hits = []
-    if dx: hits += [t for t in ((x0-p[0])/dx, (x1-p[0])/dx) if inside(t)]
-    if dy: hits += [t for t in ((y0-p[1])/dy, (y1-p[1])/dy) if inside(t)]
-    return (max(0., min(hits)), min(1., max(hits))) if hits else (0., 1.)
+    if dx:
+        hits += [t for t in ((x0 - p[0]) / dx, (x1 - p[0]) / dx) if inside(t)]
+    if dy:
+        hits += [t for t in ((y0 - p[1]) / dy, (y1 - p[1]) / dy) if inside(t)]
+    return (max(0.0, min(hits)), min(1.0, max(hits))) if hits else (0.0, 1.0)
+
 
 def _clip_ellipse(p, q, center, rx, ry):
     cx, cy = center
-    dx, dy = q[0]-p[0], q[1]-p[1]
-    px, py = p[0]-cx, p[1]-cy
-    a = (dx/rx)**2 + (dy/ry)**2
-    b = 2*(px*dx/rx**2 + py*dy/ry**2)
-    c = (px/rx)**2 + (py/ry)**2 - 1
-    disc = b*b - 4*a*c
-    if a == 0 or disc < 0: return 0., 1.
+    dx, dy = q[0] - p[0], q[1] - p[1]
+    px, py = p[0] - cx, p[1] - cy
+    a = (dx / rx) ** 2 + (dy / ry) ** 2
+    b = 2 * (px * dx / rx**2 + py * dy / ry**2)
+    c = (px / rx) ** 2 + (py / ry) ** 2 - 1
+    disc = b * b - 4 * a * c
+    if a == 0 or disc < 0:
+        return 0.0, 1.0
     s = math.sqrt(disc)
-    t1, t2 = (-b-s)/(2*a), (-b+s)/(2*a)
-    return max(0., min(t1, t2)), min(1., max(t1, t2))
+    t1, t2 = (-b - s) / (2 * a), (-b + s) / (2 * a)
+    return max(0.0, min(t1, t2)), min(1.0, max(t1, t2))
+
 
 # ── the graph ───────────────────────────────────────────────────────────────
 class ComputationGraph:
@@ -69,35 +122,58 @@ class ComputationGraph:
             nid = id(node)
             key = keys.get(nid)
             if key is None:
-                key = f"n{self._nk}"; self._nk += 1; keys[nid] = key
-            g.add_node(key, label=node.op,
-                       metadata={"shape": node.shape, "ndim": node.ndim, "dtype": node.dtype},
-                       operation=node.op not in (None, "LOAD"))
+                key = f"n{self._nk}"
+                self._nk += 1
+                keys[nid] = key
+            g.add_node(
+                key,
+                label=node.op,
+                metadata={"shape": node.shape, "ndim": node.ndim, "dtype": node.dtype},
+                operation=node.op not in (None, "LOAD"),
+            )
             for child in node.src:
                 g.add_edge(keys[id(child)], key)
 
     # ── layout engine ───────────────────────────────────────────────────
     def _propagate_shapes(self):
         g = self.graph
-        try: order = list(nx.topological_sort(g))
-        except nx.NetworkXUnfeasible: order = list(g.nodes)
+        try:
+            order = list(nx.topological_sort(g))
+        except nx.NetworkXUnfeasible:
+            order = list(g.nodes)
         for n in order:
             d = g.nodes[n]
-            if not d["operation"] or d.get("metadata"): continue
-            shapes = [g.nodes[p].get("metadata",{}).get("shape") for p in g.predecessors(n)]
-            dtypes = [g.nodes[p].get("metadata",{}).get("dtype") for p in g.predecessors(n)]
+            if not d["operation"] or d.get("metadata"):
+                continue
+            shapes = [
+                g.nodes[p].get("metadata", {}).get("shape") for p in g.predecessors(n)
+            ]
+            dtypes = [
+                g.nodes[p].get("metadata", {}).get("dtype") for p in g.predecessors(n)
+            ]
             shapes, dtypes = [s for s in shapes if s], [dt for dt in dtypes if dt]
-            if not shapes: d["metadata"] = {"shape":"?","ndim":"?","dtype":"?"}; continue
+            if not shapes:
+                d["metadata"] = {"shape": "?", "ndim": "?", "dtype": "?"}
+                continue
             op = d["label"]
             try:
-                if op == "TRANSPOSE": shape = shapes[0][::-1]
-                elif op == "MATMUL": shape = _matmul_shape(*shapes)
-                elif op in BROADCAST_OPS: shape = np.broadcast_shapes(*shapes)
-                else: shape = shapes[0]
-            except Exception: shape = None
-            if shape is None: d["metadata"] = {"shape":"?","ndim":"?","dtype":"?"}; continue
-            try: dtype = np.result_type(*[np.dtype(dt) for dt in dtypes])
-            except Exception: dtype = dtypes[0] if dtypes else "?"
+                if op == "TRANSPOSE":
+                    shape = shapes[0][::-1]
+                elif op == "MATMUL":
+                    shape = _matmul_shape(*shapes)
+                elif op in BROADCAST_OPS:
+                    shape = np.broadcast_shapes(*shapes)
+                else:
+                    shape = shapes[0]
+            except Exception:
+                shape = None
+            if shape is None:
+                d["metadata"] = {"shape": "?", "ndim": "?", "dtype": "?"}
+                continue
+            try:
+                dtype = np.result_type(*[np.dtype(dt) for dt in dtypes])
+            except Exception:
+                dtype = dtypes[0] if dtypes else "?"
             d["metadata"] = {"shape": tuple(shape), "ndim": len(shape), "dtype": dtype}
 
     @staticmethod
@@ -110,82 +186,130 @@ class ComputationGraph:
         return lines
 
     def _lines(self, d):
-        if "_lines" not in d: d["_lines"] = self._meta_lines(d.get("metadata", {}))
+        if "_lines" not in d:
+            d["_lines"] = self._meta_lines(d.get("metadata", {}))
         return d["_lines"]
 
     def _node_size(self, d):
-        if "_size" in d: return d["_size"]
+        if "_size" in d:
+            return d["_size"]
         if d["operation"]:
             lines = self._lines(d)
-            sz = (self._opd, self._opd + TEN["line_h"]*len(lines) + 0.3) if lines else (self._opd, self._opd)
+            sz = (
+                (self._opd, self._opd + TEN["line_h"] * len(lines) + 0.3)
+                if lines
+                else (self._opd, self._opd)
+            )
         else:
             lines = self._lines(d)
-            sz = (TEN["w"], TEN["header"] + TEN["pad"] + len(lines)*TEN["line_h"]) if lines else (TEN["w"], TEN["min_h"])
+            sz = (
+                (TEN["w"], TEN["header"] + TEN["pad"] + len(lines) * TEN["line_h"])
+                if lines
+                else (TEN["w"], TEN["min_h"])
+            )
         d["_size"] = sz
         return sz
 
     def _layers(self):
         g = self.graph
-        try: order = list(nx.topological_sort(g))
-        except nx.NetworkXUnfeasible: order = list(g.nodes)
+        try:
+            order = list(nx.topological_sort(g))
+        except nx.NetworkXUnfeasible:
+            order = list(g.nodes)
         depth = {}
         for _ in range(g.number_of_nodes() + 1):
             changed = False
             for n in order:
                 preds = list(g.predecessors(n))
                 if not preds:
-                    if depth.setdefault(n, 0) != 0: changed = True
+                    if depth.setdefault(n, 0) != 0:
+                        changed = True
                 elif all(p in depth for p in preds):
                     d = max(depth[p] for p in preds) + 1
-                    if depth.get(n) != d: depth[n] = d; changed = True
-            if not changed: break
-        if len(depth) != g.number_of_nodes(): depth = {n: 0 for n in g.nodes}
+                    if depth.get(n) != d:
+                        depth[n] = d
+                        changed = True
+            if not changed:
+                break
+        if len(depth) != g.number_of_nodes():
+            depth = {n: 0 for n in g.nodes}
         mx = max(depth.values(), default=0)
         layers = [[] for _ in range(mx + 1)]
-        for n, d in depth.items(): layers[d].append(n)
+        for n, d in depth.items():
+            layers[d].append(n)
         return layers
 
     def _order_layers(self, layers):
         g = self.graph
-        for layer in layers: layer.sort(key=lambda n: g.nodes[n]["label"])
+        for layer in layers:
+            layer.sort(key=lambda n: g.nodes[n]["label"])
+
         def bary(layer, idx):
             def pos(n):
                 hits = [idx[nb] for nb in g.predecessors(n) if nb in idx]
-                return sum(hits)/len(hits) if hits else 0.
+                return sum(hits) / len(hits) if hits else 0.0
+
             layer.sort(key=pos)
+
         for _ in range(10):
             changed = False
             idx = {}
             for d in range(1, len(layers)):
-                idx.update({n: i for i, n in enumerate(layers[d-1])})
+                idx.update({n: i for i, n in enumerate(layers[d - 1])})
                 if len(layers[d]) > 1:
-                    before = list(layers[d]); bary(layers[d], idx)
-                    if layers[d] != before: changed = True
+                    before = list(layers[d])
+                    bary(layers[d], idx)
+                    if layers[d] != before:
+                        changed = True
             idx = {}
-            for d in range(len(layers)-2, -1, -1):
-                idx.update({n: i for i, n in enumerate(layers[d+1])})
+            for d in range(len(layers) - 2, -1, -1):
+                idx.update({n: i for i, n in enumerate(layers[d + 1])})
                 if len(layers[d]) > 1:
-                    before = list(layers[d]); bary(layers[d], idx)
-                    if layers[d] != before: changed = True
-            if not changed: break
+                    before = list(layers[d])
+                    bary(layers[d], idx)
+                    if layers[d] != before:
+                        changed = True
+            if not changed:
+                break
         return layers
 
     def _layout(self):
         self._propagate_shapes()
-        self._opd = max(OP["min_d"], 0.95 + OP["char_k"] * max(
-            (len(d["label"]) for _, d in self.graph.nodes(data=True) if d["operation"]), default=0))
+        self._opd = max(
+            OP["min_d"],
+            0.95
+            + OP["char_k"]
+            * max(
+                (
+                    len(d["label"])
+                    for _, d in self.graph.nodes(data=True)
+                    if d["operation"]
+                ),
+                default=0,
+            ),
+        )
         layers = self._order_layers(self._layers())
         sizes = [[self._node_size(self.graph.nodes[n]) for n in L] for L in layers]
-        col_w = [max((w for w,_ in col), default=0) for col in sizes]
-        row_h = [max((h for _,h in row), default=0) for row in sizes]
-        col_x, x = [], 0.
-        for w in col_w: col_x.append(x + w/2); x += w + LAYOUT["hgap"]
+        col_w = [max((w for w, _ in col), default=0) for col in sizes]
+        row_h = [max((h for _, h in row), default=0) for row in sizes]
+        col_x, x = [], 0.0
+        for w in col_w:
+            col_x.append(x + w / 2)
+            x += w + LAYOUT["hgap"]
         pos = {}
         for d, L in enumerate(layers):
             step = row_h[d] + LAYOUT["vgap"]
-            for i, n in enumerate(L): pos[n] = (col_x[d], (i - (len(L)-1)/2) * step)
+            for i, n in enumerate(L):
+                pos[n] = (col_x[d], (i - (len(L) - 1) / 2) * step)
         tw = x - LAYOUT["hgap"]
-        th = max((len(L)-1)*(row_h[d]+LAYOUT["vgap"]) + row_h[d] for d, L in enumerate(layers)) if layers else 0.
+        th = (
+            max(
+                (len(L) - 1) * (row_h[d] + LAYOUT["vgap"]) + row_h[d]
+                for d, L in enumerate(layers)
+            )
+            if layers
+            else 0.0
+        )
         return pos, tw, th
 
     # ── clipping ────────────────────────────────────────────────────────
@@ -195,49 +319,59 @@ class ComputationGraph:
             r = self._opd / 2
             return _clip_ellipse(p, q, p, r, r)
         w, h = self._node_size(d)
-        return _clip_box(p, q, (p[0]-w/2, p[1]-h/2, p[0]+w/2, p[1]+h/2))
+        return _clip_box(p, q, (p[0] - w / 2, p[1] - h / 2, p[0] + w / 2, p[1] + h / 2))
 
     def _edge_endpoints(self, pos, u, v):
         pu, pv = pos[u], pos[v]
         _, bu = self._clip(pu, pv, u)
         _, bv = self._clip(pv, pu, v)
-        sx, sy = pu[0]+bu*(pv[0]-pu[0]), pu[1]+bu*(pv[1]-pu[1])
-        ex, ey = pv[0]+bv*(pu[0]-pv[0]), pv[1]+bv*(pu[1]-pv[1])
+        sx, sy = pu[0] + bu * (pv[0] - pu[0]), pu[1] + bu * (pv[1] - pu[1])
+        ex, ey = pv[0] + bv * (pu[0] - pv[0]), pv[1] + bv * (pu[1] - pv[1])
         return (sx, sy), (ex, ey)
 
     # ── HTML/SVG interactive viewer ─────────────────────────────────────
     def _svg_edge(self, pos, u, v):
         s, e = self._edge_endpoints(pos, u, v)
-        dx, dy = e[0]-s[0], e[1]-s[1]
+        dx, dy = e[0] - s[0], e[1] - s[1]
         L = math.hypot(dx, dy)
-        rad = EDGE["rad"] * min(1., EDGE["max_rad_dist"]/L) if L else 0.
+        rad = EDGE["rad"] * min(1.0, EDGE["max_rad_dist"] / L) if L else 0.0
         sag = rad * L
-        mx, my = (s[0]+e[0])/2, (s[1]+e[1])/2
-        nx_, ny_ = (-dy/L, dx/L) if L else (0., 0.)
-        cx, cy = mx + nx_*sag, my + ny_*sag
-        return f'M {s[0]:.3f} {-s[1]:.3f} Q {cx:.3f} {-cy:.3f} {e[0]:.3f} {-e[1]:.3f}'
+        mx, my = (s[0] + e[0]) / 2, (s[1] + e[1]) / 2
+        nx_, ny_ = (-dy / L, dx / L) if L else (0.0, 0.0)
+        cx, cy = mx + nx_ * sag, my + ny_ * sag
+        return f"M {s[0]:.3f} {-s[1]:.3f} Q {cx:.3f} {-cy:.3f} {e[0]:.3f} {-e[1]:.3f}"
 
     def _svg_op(self, node, d, x, y):
         r = self._opd / 2
         lines = self._lines(d)
-        esc = lambda s: str(s).replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
-        
+
+        def esc(s):
+            return (
+                str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            )
+
         lbl = str(d.get("label", ""))
         palette = [
-            ("#e0f2fe", "#0284c7", "#0c4a6e", "#bae6fd"), # blue
-            ("#dcfce7", "#16a34a", "#14532d", "#bbf7d0"), # green
-            ("#f3e8ff", "#9333ea", "#581c87", "#e9d5ff"), # purple
-            ("#ffedd5", "#ea580c", "#7c2d12", "#fed7aa"), # orange
-            ("#fce7f3", "#db2777", "#831843", "#fbcfe8"), # pink
-            ("#e0e7ff", "#4f46e5", "#312e81", "#c7d2fe"), # indigo
-            ("#ccfbf1", "#0d9488", "#134e4a", "#99f6e4"), # teal
+            ("#e0f2fe", "#0284c7", "#0c4a6e", "#bae6fd"),  # blue
+            ("#dcfce7", "#16a34a", "#14532d", "#bbf7d0"),  # green
+            ("#f3e8ff", "#9333ea", "#581c87", "#e9d5ff"),  # purple
+            ("#ffedd5", "#ea580c", "#7c2d12", "#fed7aa"),  # orange
+            ("#fce7f3", "#db2777", "#831843", "#fbcfe8"),  # pink
+            ("#e0e7ff", "#4f46e5", "#312e81", "#c7d2fe"),  # indigo
+            ("#ccfbf1", "#0d9488", "#134e4a", "#99f6e4"),  # teal
         ]
         bg, border, text, hover = palette[sum(ord(c) for c in lbl) % len(palette)]
-        
-        parts = [f'<g class="node op" data-id="{node}" style="--bg:{bg}; --border:{border}; --text:{text}; --hover:{hover};" transform="translate({x:.3f} {-y:.3f})">',
-                 f'<circle r="{r:.3f}"/>', f'<text class="op-label" y="0">{esc(lbl)}</text>']
+
+        parts = [
+            f'<g class="node op" data-id="{node}"'
+            f' style="--bg:{bg}; --border:{border};'
+            f' --text:{text}; --hover:{hover};"'
+            f' transform="translate({x:.3f} {-y:.3f})">',
+            f'<circle r="{r:.3f}"/>',
+            f'<text class="op-label" y="0">{esc(lbl)}</text>',
+        ]
         for i, line in enumerate(lines):
-            ly = r + OP["caption_pad"] + TEN["line_h"]*(i+.6)
+            ly = r + OP["caption_pad"] + TEN["line_h"] * (i + 0.6)
             parts.append(f'<text class="caption" x="0" y="{ly:.3f}">{esc(line)}</text>')
         parts.append("</g>")
         return "\n".join(parts)
@@ -245,55 +379,102 @@ class ComputationGraph:
     def _svg_tensor(self, node, d, x, y):
         w, h = self._node_size(d)
         lines = self._lines(d)
-        hw, hh = w/2, h/2
-        esc = lambda s: str(s).replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
-        parts = [f'<g class="node tensor" data-id="{node}" transform="translate({x:.3f} {-y:.3f})">',
-                 f'<rect x="{-hw-.02:.3f}" y="{-hh-.02:.3f}" width="{w+.04:.3f}" height="{h+.04:.3f}" rx="0.02"/>']
+        hw, hh = w / 2, h / 2
+
+        def esc(s):
+            return (
+                str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            )
+
+        parts = [
+            f'<g class="node tensor" data-id="{node}"'
+            f' transform="translate({x:.3f} {-y:.3f})">',
+            f'<rect x="{-hw - 0.02:.3f}" y="{-hh - 0.02:.3f}"'
+            f' width="{w + 0.04:.3f}" height="{h + 0.04:.3f}" rx="0.02"/>',
+        ]
         if not lines:
-            parts.append(f'<text class="tensor-label" x="0" y="0" text-anchor="middle">{esc(d["label"])}</text>')
+            parts.append(
+                f'<text class="tensor-label" x="0" y="0"'
+                f' text-anchor="middle">{esc(d["label"])}</text>'
+            )
         else:
             px = -hw + TEN["text_pad"]
-            parts.append(f'<text class="tensor-label" x="{px:.3f}" y="{-hh+TEN["header"]/2:.3f}">{esc(d["label"])}</text>')
-            parts.append(f'<line class="rule" x1="{-hw+.18:.3f}" y1="{-hh+TEN["header"]:.3f}" x2="{hw-.18:.3f}" y2="{-hh+TEN["header"]:.3f}"/>')
+            parts.append(
+                f'<text class="tensor-label" x="{px:.3f}"'
+                f' y="{-hh + TEN["header"] / 2:.3f}">{esc(d["label"])}</text>'
+            )
+            parts.append(
+                f'<line class="rule" x1="{-hw + 0.18:.3f}"'
+                f' y1="{-hh + TEN["header"]:.3f}"'
+                f' x2="{hw - 0.18:.3f}"'
+                f' y2="{-hh + TEN["header"]:.3f}"/>'
+            )
             for i, line in enumerate(lines):
-                my = -hh + TEN["header"] + TEN["line_h"]*(i+.6)
-                parts.append(f'<text class="meta" x="{px:.3f}" y="{my:.3f}">{esc(line)}</text>')
+                my = -hh + TEN["header"] + TEN["line_h"] * (i + 0.6)
+                parts.append(
+                    f'<text class="meta" x="{px:.3f}" y="{my:.3f}">{esc(line)}</text>'
+                )
         parts.append("</g>")
         return "\n".join(parts)
 
     def _build_html(self):
         pos, tw, th = self._layout()
-        pad_x, pad_y = LAYOUT["margin"]*tw, LAYOUT["margin"]*th
-        vw, vh = tw + 2*pad_x, th + 2*pad_y
+        pad_x, pad_y = LAYOUT["margin"] * tw, LAYOUT["margin"] * th
+        vw, vh = tw + 2 * pad_x, th + 2 * pad_y
 
         # BUG FIX: layout Y is centered around 0 (-th/2 to +th/2), negated for SVG.
         # world transform must shift by th/2 so content sits inside viewBox [0, vh].
-        oy = pad_y + th/2
+        oy = pad_y + th / 2
 
-        edge_svg = "\n".join(f'<path class="edge" d="{self._svg_edge(pos, u, v)}" marker-end="url(#arrow)"/>'
-                             for u, v in self.graph.edges())
-        node_svg = "\n".join(self._svg_op(n, d, *pos[n]) if d["operation"] else self._svg_tensor(n, d, *pos[n])
-                             for n, d in self.graph.nodes(data=True))
+        edge_svg = "\n".join(
+            f'<path class="edge"'
+            f' d="{self._svg_edge(pos, u, v)}"'
+            f' marker-end="url(#arrow)"/>'
+            for u, v in self.graph.edges()
+        )
+        node_svg = "\n".join(
+            self._svg_op(n, d, *pos[n])
+            if d["operation"]
+            else self._svg_tensor(n, d, *pos[n])
+            for n, d in self.graph.nodes(data=True)
+        )
 
         def _clean(v):
-            if isinstance(v, np.dtype): return str(v)
-            if isinstance(v, tuple): return [_clean(x) for x in v]
-            if isinstance(v, (np.integer, np.floating, np.bool_)): return v.item()
+            if isinstance(v, np.dtype):
+                return str(v)
+            if isinstance(v, tuple):
+                return [_clean(x) for x in v]
+            if isinstance(v, (np.integer, np.floating, np.bool_)):
+                return v.item()
             return v
 
-        payload = json.dumps({
-            "nodes": [{"id": str(n), "label": d["label"],
-                       "metadata": {k: _clean(v) for k,v in d.get("metadata",{}).items()}}
-                      for n, d in self.graph.nodes(data=True)],
-            "edges": [{"u": str(u), "v": str(v)} for u,v in self.graph.edges()],
-            "size": [vw, vh],
-        }).replace("</", "<\\/")
+        payload = json.dumps(
+            {
+                "nodes": [
+                    {
+                        "id": str(n),
+                        "label": d["label"],
+                        "metadata": {
+                            k: _clean(v) for k, v in d.get("metadata", {}).items()
+                        },
+                    }
+                    for n, d in self.graph.nodes(data=True)
+                ],
+                "edges": [{"u": str(u), "v": str(v)} for u, v in self.graph.edges()],
+                "size": [vw, vh],
+            }
+        ).replace("</", "<\\/")
 
-        marker = f'''<marker id="arrow" viewBox="0 0 1 1" refX="1" refY="0.5"
-            markerWidth="0.25" markerHeight="0.25" markerUnits="userSpaceOnUse" orient="auto">
-          <path d="M 0 0 L 1 0.5 L 0 1 Z" fill="{EDGE['color']}"/></marker>'''
+        marker = (
+            f'''<marker id="arrow" viewBox="0 0 1 1" refX="1" refY="0.5"'''
+            f''' markerWidth="0.25" markerHeight="0.25"'''
+            f""" markerUnits="userSpaceOnUse" orient="auto">"""
+            f'''  <path d="M 0 0 L 1 0.5 L 0 1 Z" fill="{EDGE["color"]}"/></marker>'''
+        )
 
-        return f'''<!DOCTYPE html><html><head><meta charset="utf-8"><title>Computation Graph</title>
+        return (
+            f"""<!DOCTYPE html><html><head><meta charset="utf-8">"""
+            f"""<title>Computation Graph</title>
 <style>{_CSS}</style></head><body>
 <div id="toolbar">
   <button id="fit">Fit</button><button id="zoomin">+</button>
@@ -314,36 +495,49 @@ class ComputationGraph:
   <div id="tooltip" hidden></div>
 </div>
 <script type="application/json" id="graph-data">{payload}</script>
-<script>{_JS}</script></body></html>'''
+<script>{_JS}</script></body></html>"""
+        )
 
     def view(self, save=None, open_browser=False, notebook=None):
         """interactive HTML/SVG viewer. jupyter inline or standalone browser."""
         html = self._build_html()
         if save:
-            with open(save, "w") as f: f.write(html)
+            with open(save, "w") as f:
+                f.write(html)
         if notebook is None:
             try:
                 from IPython import get_ipython
+
                 notebook = get_ipython() is not None
-            except Exception: notebook = False
+            except Exception:
+                notebook = False
         if open_browser:
             path = save
             if path is None:
-                fd, path = tempfile.mkstemp(suffix=".html"); os.close(fd)
-                with open(path, "w") as f: f.write(html)
+                fd, path = tempfile.mkstemp(suffix=".html")
+                os.close(fd)
+                with open(path, "w") as f:
+                    f.write(html)
             webbrowser.open("file://" + os.path.abspath(path))
         if notebook:
-            from IPython.display import IFrame, display
             import base64
+
+            from IPython.display import IFrame, display
+
             # Embed the full interactive HTML inside an iframe to prevent CSS leaking
             # and to preserve all JS interactivity (tooltips, dragging, zooming).
-            b64_html = base64.b64encode(html.encode('utf-8')).decode('utf-8')
+            b64_html = base64.b64encode(html.encode("utf-8")).decode("utf-8")
             src = f"data:text/html;base64,{b64_html}"
             display(IFrame(src=src, width="100%", height="600px"))
-            if not open_browser: print("Interactive version: view(save='graph.html', open_browser=True)")
+            if not open_browser:
+                print("Interactive version: view(save='graph.html', open_browser=True)")
         elif not save and not open_browser:
-            print("view(): pass save='graph.html' or open_browser=True to open in a browser.")
+            print(
+                "view(): pass save='graph.html' or"
+                " open_browser=True to open in a browser."
+            )
         return None
+
 
 # ── inline CSS ──────────────────────────────────────────────────────────────
 _CSS = """

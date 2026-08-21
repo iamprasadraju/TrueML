@@ -1,18 +1,26 @@
-# .pre-commit-config.yaml using local uv execution
 repos:
   - repo: local
     hooks:
       - id: ruff-check
         name: ruff check
-        entry: uv run --no-sync ruff check
+        entry: uv run --no-sync ruff check --fix
         language: system
         types: [python]
+        stages: [pre-commit]
 
       - id: ruff-format
         name: ruff format
-        entry: uv run ruff format
+        entry: uv run --no-sync ruff format
         language: system
         types: [python]
+        stages: [pre-commit]
+
+      # - id: pyrefly
+      #   name: pyrefly check
+      #   entry: uv run --no-sync pyrefly check
+      #   language: system
+      #   types: [python]
+      #   stages: [pre-commit]
 
       - id: pytest
         name: pytest
