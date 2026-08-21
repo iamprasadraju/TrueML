@@ -16,17 +16,3 @@ class History:
 
     def items(self):
         return self.history.items()
-
-    def plot(self, *metrices):
-        import matplotlib.pyplot as plt
-
-        if not metrices:
-            metrices = self.history.keys()
-
-        for metric in metrices:
-            plt.plot(self.epochs, self.history[metric], label=metric)
-
-        plt.xlabel("Epoch")
-        plt.ylabel("Metric")
-        plt.legend()
-        plt.show()

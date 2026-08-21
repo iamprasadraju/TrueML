@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from ..history import History
+from trueml.history import History
 
 
 class LinearModel:

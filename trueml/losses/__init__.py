@@ -12,8 +12,8 @@ Available Losses
 - :class:`MAEloss` — Mean Absolute Error
 """
 
-from .mean_absolute_error import MAELoss
-from .mean_squared_error import MSELoss
+from trueml.losses.mean_absolute_error import MAELoss
+from trueml.losses.mean_squared_error import MSELoss
 
 __all__ = [
     "MAELoss",
