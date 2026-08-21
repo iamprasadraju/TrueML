@@ -1,5 +1,5 @@
-from .linear import linear
-from .sigmoid import sigmoid
+from trueml.activations.linear import linear
+from trueml.activations.sigmoid import sigmoid
 
 __all__ = [
     "linear",

@@ -1,4 +1,4 @@
-from .linear_model import LinearModel
+from trueml.linear_model.linear_model import LinearModel
 
 
 class LinearRegression(LinearModel):

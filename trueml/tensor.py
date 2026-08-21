@@ -1,6 +1,6 @@
 import numpy as np
 
-from ._uops import UOp
+from trueml._uops import UOp
 
 
 class Tensor:
@@ -17,8 +17,13 @@ class Tensor:
     @classmethod
     def _make(cls, arr, op, *srcs):
         arr = np.asarray(arr)
-        uop = UOp(op=op, dtype=arr.dtype, shape=arr.shape, ndim=arr.ndim,
-                  src=tuple(s.uop for s in srcs))
+        uop = UOp(
+            op=op,
+            dtype=arr.dtype,
+            shape=arr.shape,
+            ndim=arr.ndim,
+            src=tuple(s.uop for s in srcs),
+        )
         return cls(arr, uop=uop)
 
     @property
@@ -48,8 +53,5 @@ class Tensor:
 
     def __repr__(self):
         return (
-            f"<Tensor {self.ndim}D "
-            f"shape={self.shape} "
-            f"dtype={self.dtype}>\n"
-            f"{self.arr}"
+            f"<Tensor {self.ndim}D shape={self.shape} dtype={self.dtype}>\n{self.arr}"
         )

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from ..activations import sigmoid
-from .linear_model import LinearModel
+from trueml.activations import sigmoid
+from trueml.linear_model.linear_model import LinearModel
 
 
 class LogisticRegression(LinearModel):
