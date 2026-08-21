@@ -12,7 +12,7 @@
 **Machine learning without hidden abstractions.**
 
 [![Python Version](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
-[![Documentation](https://img.shields.io/badge/docs-Material_for_MkDocs-blue)](https://iamprasadraju.github.io/TrueML/)
+[![CI](https://github.com/iamprasadraju/TrueML/actions/workflows/ci.yml/badge.svg)](https://github.com/iamprasadraju/TrueML/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 </div>
@@ -78,13 +78,12 @@ for epoch in range(500):
 - **Transparent Calculus:** The multivariable chain rule is exposed directly in code. You pass the derivative of the loss (`dloss`) into the model's Jacobian (`model.grad()`) explicitly.
 - **Strictly Stateless:** Models hold `weights` and `bias`, but **never** cache data (`X_train_` or `y_train_`). You must supply the data every time you compute a forward pass or gradient.
 - **Auditable Math:** Every intermediate step (`y_pred`, `loss`, `dloss`, `dw`) is a standard NumPy array. You can intercept, print, clip, or plot them at any time.
-- **Native Visualizations:** `trueml.plot.lossfn_plot` plots the 3D loss surface of any loss function over weight and bias space, and `History.plot()` plots training metrics per epoch.
 
 ---
 
 ## Installation
 
-TrueML requires **Python 3.11+**. The core dependency is `numpy`; `matplotlib` is optional (used only for plotting).
+TrueML requires **Python 3.11+**. Core dependencies are `numpy` and `networkx` (for computation graph visualization).
 
 It is available on PyPI (but still in the developing stage):
 
@@ -100,10 +99,26 @@ cd trueml
 pip install -e .
 ```
 
-For plotting support, install the optional dependency:
+---
+
+## Development
 
 ```bash
-pip install -e ".[viz]"
+# Clone and install with dev dependencies
+git clone https://github.com/iamprasadraju/trueml.git
+cd trueml
+uv sync
+
+# Run tests
+uv run pytest
+
+# Lint and format
+uv run ruff check .
+uv run ruff format .
+
+# Build docs
+uv sync --group docs
+uv run mkdocs serve
 ```
 
 ---
