@@ -11,6 +11,9 @@
 
 **Machine learning without hidden abstractions.**
 
+<p><sub><em>If you can’t build it, you don’t truly understand it.</em></sub></p>
+
+
 [![Python Version](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
 [![CI](https://github.com/iamprasadraju/TrueML/actions/workflows/ci.yml/badge.svg)](https://github.com/iamprasadraju/TrueML/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
