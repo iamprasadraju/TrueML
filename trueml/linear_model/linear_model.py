@@ -3,22 +3,17 @@ from __future__ import annotations
 import numpy as np
 
 from trueml.history import History
-from trueml.tensor import Tensor
 
 
 class LinearModel:
-    def __init__(self, n_features, lr=0.01, history=True, uops=False):
+    def __init__(self, n_features, lr=0.01, history=True):
         self.lr = lr
-        self.uops = uops
 
-        self.weights = Tensor(np.random.random(n_features), uops=self.uops)
-        self.bias = Tensor(0.0, uops=self.uops)
+        self.weights = np.random.random((n_features, 1))
+        self.bias = 0.0
         self.history = History() if history else None
 
     def forward(self, X_train):
-        if not isinstance(X_train, Tensor):
-            X_train = Tensor(X_train, uops=self.uops)
-
         self.X_train = X_train
         return self.X_train @ self.weights + self.bias
 
@@ -46,6 +41,4 @@ class LinearModel:
         self.bias -= self.lr * db
 
     def predict(self, X_test):
-        if not isinstance(X_test, Tensor):
-            X_test = Tensor(X_test, uops=self.uops)
         return X_test @ self.weights + self.bias

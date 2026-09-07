@@ -15,7 +15,7 @@ y = x @ w + b
 
 
 def test_lin_reg():
-    model = LinearRegression(lr=0.01)
+    model = LinearRegression(lr=0.01, n_features=x.shape[1])
     loss_fn = MSELoss()
 
     initial_loss = loss_fn(y, model.forward(x))
