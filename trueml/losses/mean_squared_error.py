@@ -4,9 +4,6 @@ import numpy as np
 
 
 class MSELoss:
-    def __init__(self, uops=False):
-        self.uops = uops
-
     def __call__(self, y_true, y_pred):
         return np.mean(np.square(y_true - y_pred))
 
