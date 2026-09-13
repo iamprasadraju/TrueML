@@ -17,9 +17,9 @@ class LogisticRegression:
     def forward(self):
         return self.X @ self.weights + self.bias
 
-    def train(self, activfn, lossfn, epochs=1000):
-        self.loss_fn = lossfn
-        self.activ_fn = activfn
+    def train(self, activ_fn, loss_fn, epochs=1000):
+        self.loss_fn = loss_fn
+        self.activ_fn = activ_fn
 
         for _epoch in range(epochs):
             logits = self.forward()

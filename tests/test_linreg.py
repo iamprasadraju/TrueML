@@ -15,16 +15,18 @@ y = x @ w + b
 
 
 def test_lin_reg():
-    model = LinearRegression(lr=0.01, n_features=x.shape[1])
+    model = LinearRegression(x, y, lr=0.01)
     loss_fn = MSELoss()
 
-    initial_loss = loss_fn(y, model.forward(x))
-    for _epoch in range(10000):
-        y_pred = model.forward(x)
-        dL_dy_pred = loss_fn.grad(y, y_pred)
-        model.backward(dL_dy_pred)
-    final_loss = loss_fn(y, model.forward(x))
+    initial_ypred = model.forward()
+    initial_loss = loss_fn(y, initial_ypred)
+
+    model.train(lossfn=loss_fn, epochs=10000)
+
+    final_ypred = model.forward()
+    final_loss = loss_fn(y, final_ypred)
 
     assert final_loss < initial_loss
+
     np.testing.assert_allclose(model.weights, w, atol=1e-3)
     np.testing.assert_allclose(model.bias, b, atol=1e-3)
