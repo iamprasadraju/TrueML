@@ -10,8 +10,9 @@ class LogisticRegression:
         self.y = y
 
         n_features = self.X.shape[1]
-        self.weights = np.random.random((n_features, 1))
-        self.bias = 0.0
+        n_targets = self.y.shape[1]
+        self.weights = np.random.random((n_features, n_targets))
+        self.bias = np.zeros(n_targets)
 
     def forward(self):
         return self.X @ self.weights + self.bias
@@ -29,8 +30,8 @@ class LogisticRegression:
 
             dz = dloss_fn * dactiv_fn
 
-            dweights = self.X.T @ dz
-            dbias = dz.sum(axis=0)
+            dw = self.X.T @ dz
+            db = dz.sum(axis=0)
 
-            self.weights -= self.lr * dweights
-            self.bias -= self.lr * dbias
+            self.weights -= self.lr * dw
+            self.bias -= self.lr * db
