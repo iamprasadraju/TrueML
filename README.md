@@ -44,16 +44,20 @@ The core of TrueML is the four-step explicit pipeline: `forward` $\rightarrow$ `
 
 ```python
 import numpy as np
-from trueml.linear_model import LinearRegression
+from trueml.linear_model import LinearModel
 from trueml.losses import MSELoss
 
 # 1. Prepare data
 X = np.random.randn(100, 3)
-y = X @ np.array([1.5, -2.0, 0.5]) + 0.1
+y = np.array(X @ np.array([1.5, -2.0, 0.5]) + 0.1).reshape(-1, 1)
+
+n_features = X.shape[1]
+n_targets = y.shape[1]
 
 # 2. Initialize Model and Loss
-model = LinearRegression(lr=0.01)
+model = LinearModel(n_features, n_targets ,lr=0.01)
 loss_fn = MSELoss()
+
 
 # 3. The Explicit Training Loop
 for epoch in range(500):
@@ -65,10 +69,10 @@ for epoch in range(500):
     loss = loss_fn(y, y_pred)
     
     # Step 3: Gradient Computation (∂L/∂ŷ)
-    dloss = loss_fn.grad(y, y_pred)
+    dl_dy_pred = loss_fn.grad(y, y_pred)
     
     # Step 4: Backward Update (w ← w - η · ∂L/∂w)
-    model.backward(dloss)
+    model.backward(dl_dy_pred)
     
     if epoch % 100 == 0:
         print(f"Epoch {epoch} | Loss: {loss:.4f}")
@@ -78,15 +82,15 @@ for epoch in range(500):
 
 ## Features
 
-- **Transparent Calculus:** The multivariable chain rule is exposed directly in code. You pass the derivative of the loss (`dloss`) into the model's Jacobian (`model.grad()`) explicitly.
+- **Transparent Calculus:** The multivariable chain rule is exposed directly in code. You pass the derivative of the loss (`dl_dy_pred`) into the model's Jacobian (`model.grad()`) explicitly.
 - **Strictly Stateless:** Models hold `weights` and `bias`, but **never** cache data (`X_train_` or `y_train_`). You must supply the data every time you compute a forward pass or gradient.
-- **Auditable Math:** Every intermediate step (`y_pred`, `loss`, `dloss`, `dw`) is a standard NumPy array. You can intercept, print, clip, or plot them at any time.
+- **Auditable Math:** Every intermediate step (`y_pred`, `loss`, `dl_dy_pred`, `dw`) is a standard NumPy array. You can intercept, print, clip, or plot them at any time.
 
 ---
 
 ## Installation
 
-TrueML requires **Python 3.11+**. Core dependencies are `numpy` and `networkx` (for computation graph visualization).
+TrueML requires **Python 3.11+**. Core dependencies are `numpy`, `tqdm` and `networkx` (for computation graph visualization).
 
 It is available on PyPI (but still in the developing stage):
 
@@ -118,10 +122,6 @@ uv run pytest
 # Lint and format
 uv run ruff check .
 uv run ruff format .
-
-# Build docs
-uv sync --group docs
-uv run mkdocs serve
 ```
 
 ---
