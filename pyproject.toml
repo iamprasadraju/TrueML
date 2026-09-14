@@ -23,6 +23,7 @@ classifiers = [
 
 dependencies = [
     "numpy",
+    "tqdm",
     "networkx",
 ]
 
