@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 
+from trueml.helpers import bench_pbar
+
 
 class LinearRegression:
     def __init__(self, X, y, lr=0.01):
@@ -17,16 +19,33 @@ class LinearRegression:
     def forward(self):
         return self.X @ self.weights + self.bias
 
-    def train(self, lossfn, epochs=1000):
-        self.loss_fn = lossfn
+    def training_step(self):
+        y_pred = self.forward()
 
+        loss = self.loss_fn(self.y, y_pred)
+        dl_dy_pred = self.loss_fn.grad(self.y, y_pred)
+
+        dl_dw = self.X.T @ dl_dy_pred
+        dl_db = dl_dy_pred.sum(axis=0)
+
+        # backward pass
+        self.weights -= self.lr * dl_dw
+        self.bias -= self.lr * dl_db
+        return loss
+
+    @bench_pbar
+    def train(self, loss_fn, epochs=1000):
+        self.loss_fn = loss_fn
         for _epoch in range(epochs):
-            y_pred = self.forward()
+            self.training_step()
 
-            dloss = self.loss_fn.grad(self.y, y_pred)
 
-            dw = self.X.T @ dloss
-            db = dloss.sum(axis=0)
+if __name__ == "__main__":
+    from trueml.helpers import bench_pbar
+    from trueml.losses import MSELoss
 
-            self.weights -= self.lr * dw
-            self.bias -= self.lr * db
+    X = np.random.random((10000, 100))
+    y = np.random.random((10000, 1))
+
+    model = LinearRegression(X, y)
+    model.train(loss_fn=MSELoss(), epochs=10000)

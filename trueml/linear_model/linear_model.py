@@ -6,11 +6,11 @@ from trueml.history import History
 
 
 class LinearModel:
-    def __init__(self, n_features, lr=0.01, history=True):
+    def __init__(self, n_features, n_targets, lr=0.01, history=True):
         self.lr = lr
 
-        self.weights = np.random.random((n_features, 1))
-        self.bias = 0.0
+        self.weights = np.random.random((n_features, n_targets))
+        self.bias = np.zeros(n_targets)
         self.history = History() if history else None
 
     def forward(self, X_train):
@@ -34,11 +34,11 @@ class LinearModel:
 
         # dw = ∂L/∂w
         # db = ∂L/∂b
-        dw = self.X_train.T @ dL_dy_pred
-        db = np.sum(dL_dy_pred)
+        dl_dw = self.X_train.T @ dL_dy_pred
+        dl_db = dL_dy_pred.sum(axis=0)
 
-        self.weights -= self.lr * dw
-        self.bias -= self.lr * db
+        self.weights -= self.lr * dl_dw
+        self.bias -= self.lr * dl_db
 
     def predict(self, X_test):
         return X_test @ self.weights + self.bias
