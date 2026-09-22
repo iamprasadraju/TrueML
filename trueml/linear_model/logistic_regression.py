@@ -23,6 +23,7 @@ class LogisticRegression:
         logits = self.forward()
         y_pred = self.activ_fn(logits)
 
+        loss = self.loss_fn(self.y, y_pred)
         dl_dy_pred = self.loss_fn.grad(self.y, y_pred)
         dy_pred_dz = self.activ_fn.grad(y_pred)
 
@@ -33,6 +34,7 @@ class LogisticRegression:
 
         self.weights -= self.lr * dl_dw
         self.bias -= self.lr * dl_db
+        return loss
 
     @bench_pbar
     def train(self, activ_fn, loss_fn, epochs=1000):
