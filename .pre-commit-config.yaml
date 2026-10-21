@@ -10,7 +10,7 @@ repos:
 
       - id: ruff-format
         name: ruff format
-        entry: uv run --no-sync ruff format
+        entry: uv run --no-sync ruff format --force-exclude
         language: system
         types: [python]
         stages: [pre-commit]

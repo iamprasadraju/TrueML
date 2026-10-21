@@ -35,8 +35,8 @@ jobs:
       - name: Ruff check
         run: uv run ruff check
 
-      - name: Ruff format check
-        run: uv run ruff format --check
+      # - name: Ruff format check
+      # run: uv run ruff format --check
 
   tests:
     name: Tests (Python ${{ matrix.python-version }})

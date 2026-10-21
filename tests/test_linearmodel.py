@@ -15,16 +15,16 @@ y = X @ w + b
 
 
 def test_linearmodel():
-    model = LinearModel(X.shape[1], y.shape[1], lr=0.01)
-    loss_fn = MSELoss()
+  model = LinearModel(X.shape[1], y.shape[1], lr=0.01)
+  loss_fn = MSELoss()
 
-    initial_loss = loss_fn(y, model.forward(X))
-    for _ in range(10000):
-        y_pred = model.forward(X)
-        dl_dy_pred = loss_fn.grad(y, y_pred)
-        model.backward(dl_dy_pred)
-    final_loss = loss_fn(y, model.forward(X))
+  initial_loss = loss_fn(y, model.forward(X))
+  for _ in range(10000):
+    y_pred = model.forward(X)
+    dl_dy_pred = loss_fn.grad(y, y_pred)
+    model.backward(dl_dy_pred)
+  final_loss = loss_fn(y, model.forward(X))
 
-    assert final_loss < initial_loss
-    np.testing.assert_allclose(model.weights, w, atol=1e-3)
-    np.testing.assert_allclose(model.bias, b, atol=1e-3)
+  assert final_loss < initial_loss
+  np.testing.assert_allclose(model.weights, w, atol=1e-3)
+  np.testing.assert_allclose(model.bias, b, atol=1e-3)

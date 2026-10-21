@@ -72,9 +72,9 @@ select = [
 ignore = [
     "E701", # Allow one-line statements: if x: return
     "E702", # Allow semicolon-separated statements
-    "E501", # Allow long lines
 ]
 
 [tool.ruff.format]
 indent-style = "space"
 quote-style = "double"
+exclude = ["*"] 

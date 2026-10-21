@@ -4,10 +4,10 @@ import numpy as np
 
 
 class MSELoss:
-    def __call__(self, y_true, y_pred):
-        return np.mean(np.square(y_true - y_pred))
+  def __call__(self, y_true, y_pred):
+    return np.mean(np.square(y_true - y_pred))
 
-    @staticmethod
-    def grad(y_true, y_pred):
-        n = y_true.size
-        return (2 / n) * (y_pred - y_true)
+  @staticmethod
+  def grad(y_true, y_pred):
+    n = y_true.size
+    return (2 / n) * (y_pred - y_true)

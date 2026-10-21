@@ -15,18 +15,18 @@ y = X @ w + b
 
 
 def test_lin_reg():
-    model = LinearRegression(X, y, lr=0.01)
-    loss_fn = MSELoss()
+  model = LinearRegression(X, y, lr=0.01)
+  loss_fn = MSELoss()
 
-    initial_ypred = model.forward()
-    initial_loss = loss_fn(y, initial_ypred)
+  initial_ypred = model.forward()
+  initial_loss = loss_fn(y, initial_ypred)
 
-    model.train(loss_fn=loss_fn, epochs=10000)
+  model.train(loss_fn=loss_fn, epochs=10000)
 
-    final_ypred = model.forward()
-    final_loss = loss_fn(y, final_ypred)
+  final_ypred = model.forward()
+  final_loss = loss_fn(y, final_ypred)
 
-    assert final_loss < initial_loss
+  assert final_loss < initial_loss
 
-    np.testing.assert_allclose(model.weights, w, atol=1e-3)
-    np.testing.assert_allclose(model.bias, b, atol=1e-3)
+  np.testing.assert_allclose(model.weights, w, atol=1e-3)
+  np.testing.assert_allclose(model.bias, b, atol=1e-3)
