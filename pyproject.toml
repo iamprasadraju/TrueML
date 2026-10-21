@@ -23,8 +23,6 @@ classifiers = [
 
 dependencies = [
     "numpy",
-    "tqdm",
-    "networkx",
 ]
 
 [project.urls]
@@ -41,12 +39,6 @@ dev = [
     "prek",
 ]
 
-docs = [
-    "mkdocs",
-    "mkdocs-material",
-    "mkdocstrings[python]",
-]
-
 [tool.setuptools.packages.find]
 where = ["."]
 
@@ -55,24 +47,34 @@ where = ["."]
 # search-path = ["."]
 
 [tool.ruff]
-include = ["*.py"]
+preview = true
+include = ["trueml/**/*.py", "tests/**/*.py"]
 target-version = "py311"
-line-length = 88
+line-length = 150
+indent-width = 2
+exclude = [
+  ".git/",
+]
 
 [tool.ruff.lint]
 select = [
-    "E",   # pycodestyle errors
-    "F",   # Pyflakes
-    "I",   # isort
-    "UP",  # pyupgrade
-    "B",   # flake8-bugbear
-    "SIM", # flake8-simplify
-    "RUF", # Ruff-specific rules
+    "E4",   # Import-related errors
+    "E7",   # Statement errors
+    "E9",   # Runtime and syntax-related errors
+    "F",    # Pyflakes: undefined names, unused imports
+    "I",    # Import sorting
+    "UP",   # Modern Python syntax
+    "B",    # Likely bugs
+    "SIM",  # Simplifications
+    "RUF",  # Ruff-specific checks
+    "F401", # remove used imports
+]
+ignore = [
+    "E701", # Allow one-line statements: if x: return
+    "E702", # Allow semicolon-separated statements
+    "E501", # Allow long lines
 ]
 
-[tool.ruff.lint.per-file-ignores]
-"trueml/viz/cgraph.py" = ["E501"]
-
 [tool.ruff.format]
-quote-style = "double"
 indent-style = "space"
+quote-style = "double"
