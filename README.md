@@ -90,7 +90,7 @@ for epoch in range(500):
 
 ## Installation
 
-TrueML requires **Python 3.11+**. Core dependencies are `numpy`, `tqdm` and `networkx` (for computation graph visualization).
+TrueML requires Python 3.11+. Core dependency: numpy.
 
 It is available on PyPI (but still in the developing stage):
 
