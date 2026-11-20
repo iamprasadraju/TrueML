@@ -38,6 +38,22 @@ If you are a student learning how gradients flow, a researcher auditing an optim
 
 ---
 
+## Engineering Goals
+
+| Area          | Target                                  |
+| ------------- | --------------------------------------- |
+| Correctness   | Match established implementations       |
+| Performance   | Competitive execution time              |
+| API           | Consistent and predictable              |
+| Memory        | Efficient memory allocation             |
+| Testing       | Unit, integration and numerical tests   |
+| Documentation | Comprehensive API documentation         |
+| Reliability   | Input validation and edge-case handling |
+| Portability   | Linux, macOS and Windows                |
+| Compatibility | Multiple Python and NumPy versions  (maybe other backends)    |
+
+---
+
 ## Quick Start
 
 The core of TrueML is the four-step explicit pipeline: `forward` $\rightarrow$ `loss` $\rightarrow$ `gradient` $\rightarrow$ `backward`.
