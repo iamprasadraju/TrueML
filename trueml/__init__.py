@@ -3,8 +3,9 @@ from trueml import (
   linear_model,
   losses,
   metrics,
-# neighbors,
+  # neighbors,
   preprocessing,
+  stats,
 )
 
 __all__ = [
@@ -12,6 +13,7 @@ __all__ = [
   "linear_model",
   "losses",
   "metrics",
-# "neighbors",
+  # "neighbors",
   "preprocessing",
+  "stats",
 ]
